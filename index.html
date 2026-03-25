@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>SHE 투자정보</title>
+<style>
+:root {
+  --bg:       #06060d;
+  --surface:  #0e0e1a;
+  --card:     #141422;
+  --border:   #2a1f3d;
+  --accent:   #ff3d8f;
+  --accent2:  #ff85b8;
+  --green:    #3fb950;
+  --red:      #f85149;
+  --gold:     #e3b341;
+  --text:     #f2ecf8;
+  --muted:    #9080a8;
+  --radius:   14px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ── 로그인 ── */
+#login-screen {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 100vh; padding: 32px 24px;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255,61,143,0.13) 0%, transparent 70%),
+    var(--bg);
+  position: relative; overflow: hidden;
+}
+#login-screen::before {
+  content:''; position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(255,61,143,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,61,143,0.07) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+.login-graphic {
+  position: relative; width: 200px; height: 120px;
+  margin-bottom: 28px; flex-shrink: 0;
+}
+.login-title {
+  font-size: 32px; font-weight: 900;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #ff3d8f 0%, #ff9ec8 60%, #c084fc 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 6px; text-align: center;
+}
+.login-subtitle {
+  font-size: 15px; font-weight: 600;
+  color: var(--muted); margin-bottom: 4px; text-align: center;
+  letter-spacing: 2px;
+}
+.login-sub {
+  color: var(--muted); font-size: 12px; margin-bottom: 36px;
+  text-align: center; opacity: 0.6;
+}
+.login-card {
+  width: 100%; background: rgba(14,14,26,0.9);
+  border: 1px solid rgba(255,61,143,0.25);
+  border-radius: var(--radius); padding: 24px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 40px rgba(255,61,143,0.08);
+}
+.login-card label {
+  display: block; font-size: 11px; color: var(--accent2);
+  margin-bottom: 6px; letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.login-card input {
+  width: 100%; background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,61,143,0.2); border-radius: 8px;
+  color: var(--text); font-size: 16px;
+  padding: 13px 16px; margin-bottom: 16px;
+  outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.login-card input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255,61,143,0.12);
+}
+.btn-primary {
+  width: 100%; padding: 15px;
+  background: linear-gradient(135deg, #ff3d8f, #c026d3);
+  color: #fff; border: none; border-radius: 10px;
+  font-size: 16px; font-weight: 800; letter-spacing: 0.5px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(255,61,143,0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 28px rgba(255,61,143,0.5);
+}
+.btn-primary:active { transform: translateY(0); }
+.login-err {
+  color: var(--red); font-size: 13px;
+  text-align: center; margin-top: 12px; display: none;
+}
+
+/* ── 앱 레이아웃 ── */
+#app { display: none; flex-direction: column; min-height: 100vh; }
+
+/* 헤더 */
+.app-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.app-header-title {
+  font-size: 18px; font-weight: 800; color: var(--accent);
+}
+.app-header-user {
+  font-size: 13px; color: var(--muted);
+}
+.btn-logout {
+  background: none; border: 1px solid var(--border);
+  color: var(--muted); border-radius: 6px;
+  padding: 4px 10px; font-size: 12px; cursor: pointer;
+}
+
+/* 탭 */
+.tab-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+}
+.tab-btn {
+  flex: 1; padding: 12px 4px;
+  background: none; border: none;
+  color: var(--muted); font-size: 13px; font-weight: 600;
+  cursor: pointer; border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* 탭 콘텐츠 */
+.tab-content { display: none; padding: 16px; flex: 1; }
+.tab-content.active { display: block; }
+
+/* 공통 카드 */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px;
+  margin-bottom: 12px;
+}
+.card-title {
+  font-size: 11px; color: var(--muted);
+  letter-spacing: 0.8px; margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.section-title {
+  font-size: 14px; font-weight: 700;
+  color: var(--text); margin-bottom: 12px;
+}
+
+/* ── 탭1: 조회종목 ── */
+.lookup-form { display: flex; gap: 8px; margin-bottom: 16px; }
+.lookup-form input {
+  flex: 1; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); font-size: 15px; padding: 11px 13px;
+  outline: none;
+}
+.lookup-form input:focus { border-color: var(--accent); }
+.btn-search {
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 8px;
+  padding: 0 18px; font-size: 14px; font-weight: 700;
+  cursor: pointer; white-space: nowrap;
+}
+
+.analysis-box { font-size: 13px; }
+.analysis-row {
+  display: flex; justify-content: space-between;
+  padding: 6px 0; border-bottom: 1px solid var(--border);
+}
+.analysis-row:last-child { border-bottom: none; }
+.analysis-label { color: var(--muted); }
+.analysis-val { font-weight: 600; }
+
+.trend-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 8px; margin-top: 8px;
+}
+.trend-cell {
+  background: var(--card); border-radius: 8px;
+  padding: 10px 8px; text-align: center;
+}
+.trend-cell .t-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+.trend-cell .t-val { font-size: 13px; font-weight: 700; }
+
+.badge-up   { color: var(--red); }
+.badge-down { color: var(--accent); }
+.badge-side { color: var(--gold); }
+
+.indicator-list { margin-top: 8px; }
+.ind-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 0; font-size: 13px;
+  border-bottom: 1px solid var(--border);
+}
+.ind-row:last-child { border-bottom: none; }
+.ind-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.dot-green { background: var(--green); }
+.dot-red   { background: var(--red); }
+.dot-gray  { background: var(--border); }
+.ind-name  { flex: 1; color: var(--muted); }
+.ind-val   { font-weight: 600; font-size: 12px; }
+
+.pending-msg {
+  text-align: center; color: var(--muted);
+  padding: 24px; font-size: 14px;
+}
+.spinner {
+  display: inline-block; width: 16px; height: 16px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle; margin-right: 8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── 탭2: 보유종목 ── */
+.summary-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; margin-bottom: 16px;
+}
+.summary-cell {
+  background: var(--card); border-radius: 10px;
+  padding: 12px; text-align: center;
+}
+.summary-cell .s-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+.summary-cell .s-val { font-size: 16px; font-weight: 800; }
+
+.holding-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px;
+  margin-bottom: 10px; cursor: pointer;
+  transition: border-color 0.2s;
+}
+.holding-item:hover { border-color: var(--accent); }
+.holding-top {
+  display: flex; justify-content: space-between;
+  align-items: flex-start; margin-bottom: 10px;
+}
+.holding-name { font-size: 15px; font-weight: 700; }
+.holding-code { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.holding-pct {
+  font-size: 18px; font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.holding-details {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.hd-cell .hd-label { font-size: 10px; color: var(--muted); }
+.hd-cell .hd-val { font-size: 13px; font-weight: 600; }
+
+/* 모달 */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7); z-index: 200;
+  align-items: flex-end; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal-sheet {
+  background: var(--surface); border-radius: 16px 16px 0 0;
+  width: 100%; max-width: 480px;
+  max-height: 85vh; overflow-y: auto;
+  padding: 20px;
+  animation: slideUp 0.25s ease;
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+.modal-handle {
+  width: 40px; height: 4px; border-radius: 2px;
+  background: var(--border); margin: 0 auto 16px;
+}
+.modal-close {
+  float: right; background: none; border: none;
+  color: var(--muted); font-size: 18px; cursor: pointer;
+}
+
+/* ── 탭3: 추천종목 ── */
+.signal-date {
+  font-size: 12px; color: var(--muted); margin-bottom: 12px;
+}
+.signal-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px;
+  margin-bottom: 10px; cursor: pointer;
+  transition: border-color 0.2s;
+}
+.signal-item:hover { border-color: var(--gold); }
+.signal-top {
+  display: flex; justify-content: space-between; margin-bottom: 8px;
+}
+.signal-name { font-size: 15px; font-weight: 700; }
+.signal-grade {
+  font-size: 12px; font-weight: 800; padding: 2px 8px;
+  border-radius: 20px; border: 1px solid;
+}
+.grade-A { color: var(--gold); border-color: var(--gold); background: rgba(227,179,65,0.1); }
+.grade-B { color: var(--accent); border-color: var(--accent); background: rgba(88,166,255,0.1); }
+.grade-C { color: var(--muted); border-color: var(--border); }
+.signal-type {
+  font-size: 12px; color: var(--accent);
+  background: rgba(88,166,255,0.1);
+  padding: 3px 8px; border-radius: 4px; display: inline-block;
+}
+.signal-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.signal-tag {
+  font-size: 11px; color: var(--muted);
+  background: var(--card); border-radius: 4px;
+  padding: 2px 7px;
+}
+
+/* 새로고침 버튼 */
+.refresh-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--card); border: 1px solid var(--border);
+  color: var(--muted); border-radius: 8px;
+  padding: 8px 14px; font-size: 13px; cursor: pointer;
+  margin-bottom: 14px;
+}
+.refresh-btn:hover { color: var(--text); border-color: var(--accent); }
+
+.pos-text { color: var(--red); }
+.neg-text { color: var(--accent); }
+.neu-text { color: var(--muted); }
+
+.empty-msg {
+  text-align: center; color: var(--muted);
+  padding: 40px 16px; font-size: 14px;
+}
+</style>
+</head>
+<body>
+
+<!-- ══ 로그인 화면 ══ -->
+<div id="login-screen">
+  <!-- 감각적 SVG 차트 그래픽 -->
+  <div class="login-graphic">
+    <svg width="200" height="120" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="lg1" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:#ff3d8f;stop-opacity:0.5"/>
+          <stop offset="100%" style="stop-color:#ff3d8f;stop-opacity:0"/>
+        </linearGradient>
+        <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#c026d3;stop-opacity:0.8"/>
+          <stop offset="100%" style="stop-color:#ff3d8f;stop-opacity:1"/>
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="2.5" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <!-- 그리드 -->
+      <line x1="0" y1="30" x2="200" y2="30" stroke="rgba(255,61,143,0.1)" stroke-width="1"/>
+      <line x1="0" y1="60" x2="200" y2="60" stroke="rgba(255,61,143,0.1)" stroke-width="1"/>
+      <line x1="0" y1="90" x2="200" y2="90" stroke="rgba(255,61,143,0.1)" stroke-width="1"/>
+      <line x1="50" y1="0" x2="50" y2="120" stroke="rgba(255,61,143,0.07)" stroke-width="1"/>
+      <line x1="100" y1="0" x2="100" y2="120" stroke="rgba(255,61,143,0.07)" stroke-width="1"/>
+      <line x1="150" y1="0" x2="150" y2="120" stroke="rgba(255,61,143,0.07)" stroke-width="1"/>
+      <!-- 면적 채우기 -->
+      <path d="M10,95 L30,80 L55,88 L75,65 L95,70 L115,45 L135,50 L155,28 L175,22 L190,12 L190,110 L10,110 Z"
+            fill="url(#lg1)" opacity="0.6"/>
+      <!-- 메인 라인 -->
+      <path d="M10,95 L30,80 L55,88 L75,65 L95,70 L115,45 L135,50 L155,28 L175,22 L190,12"
+            stroke="url(#lg2)" stroke-width="2.5" fill="none"
+            filter="url(#glow)" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- 포인트 -->
+      <circle cx="190" cy="12" r="4" fill="#ff3d8f" filter="url(#glow)"/>
+      <circle cx="155" cy="28" r="3" fill="#ff3d8f" opacity="0.7"/>
+      <circle cx="115" cy="45" r="3" fill="#ff3d8f" opacity="0.7"/>
+      <!-- 보조 라인 (점선) -->
+      <path d="M10,75 L30,68 L55,72 L75,55 L95,58 L115,38 L135,42 L155,22 L175,18 L190,8"
+            stroke="rgba(192,38,211,0.3)" stroke-width="1.5" fill="none"
+            stroke-dasharray="4,3" stroke-linecap="round"/>
+      <!-- 가격 표시 -->
+      <rect x="155" y="4" width="38" height="14" rx="4" fill="rgba(255,61,143,0.2)" stroke="rgba(255,61,143,0.4)" stroke-width="1"/>
+      <text x="174" y="14" fill="#ff85b8" font-size="8" font-weight="700" text-anchor="middle">+12.4%</text>
+    </svg>
+  </div>
+
+  <div class="login-title">SHE 투자정보</div>
+  <div class="login-subtitle">주식투자 정보서비스</div>
+  <div class="login-sub">보유자 전용 · 실시간 투자정보</div>
+  <div class="login-card">
+    <label>코드 입력</label>
+    <input type="tel" id="input-phone" placeholder="등록된 코드를 입력하세요" maxlength="11">
+    <button class="btn-primary" onclick="doLogin()">입장하기</button>
+    <div class="login-err" id="login-err">코드를 확인해 주세요.</div>
+  </div>
+</div>
+
+<!-- ══ 앱 화면 ══ -->
+<div id="app">
+  <!-- 헤더 -->
+  <div class="app-header">
+    <div class="app-header-title" style="background:linear-gradient(135deg,#ff3d8f,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">📈 SHE</div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="app-header-user" id="header-user"></div>
+      <button class="btn-logout" onclick="doLogout()">로그아웃</button>
+    </div>
+  </div>
+
+  <!-- 탭바 -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('lookup')">🔍 조회종목</button>
+    <button class="tab-btn" onclick="switchTab('holdings')">💼 보유종목</button>
+    <button class="tab-btn" onclick="switchTab('signals')">⚡ 추천종목</button>
+  </div>
+
+  <!-- ── 탭1: 조회종목 ── -->
+  <div id="tab-lookup" class="tab-content active">
+    <div class="lookup-form">
+      <input type="text" id="lookup-code" placeholder="종목코드 (예: 005930)" maxlength="6">
+      <input type="text" id="lookup-name" placeholder="종목명" style="max-width:110px;">
+      <button class="btn-search" onclick="requestLookup()">분석</button>
+    </div>
+    <div id="lookup-result-area">
+      <div class="empty-msg">종목코드를 입력하고 분석 버튼을 누르세요.</div>
+    </div>
+  </div>
+
+  <!-- ── 탭2: 보유종목 ── -->
+  <div id="tab-holdings" class="tab-content">
+    <button class="refresh-btn" onclick="loadHoldings()">
+      <span id="holdings-spin"></span>🔄 새로고침
+    </button>
+    <div id="holdings-area"><div class="empty-msg">불러오는 중...</div></div>
+  </div>
+
+  <!-- ── 탭3: 추천종목 ── -->
+  <div id="tab-signals" class="tab-content">
+    <button class="refresh-btn" onclick="loadSignals()">
+      <span id="signals-spin"></span>🔄 새로고침
+    </button>
+    <div id="signals-area"><div class="empty-msg">불러오는 중...</div></div>
+  </div>
+</div>
+
+<!-- ══ 상세 모달 ══ -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// 설정
+// ════════════════════════════════════════
+const BASE = "";  // 같은 서버
+let AUTH = { token: "", phone: "", holder: "" };
+
+// URL 파라미터에서 token 추출
+const urlToken = new URLSearchParams(location.search).get("token") || "";
+
+// ════════════════════════════════════════
+// 인증
+// ════════════════════════════════════════
+async function doLogin() {
+  const phone = document.getElementById("input-phone").value.replace(/-/g,"").trim();
+  if (!phone || phone.length < 10) {
+    showLoginErr("코드를 올바르게 입력해 주세요.");
+    return;
+  }
+  if (!urlToken) {
+    showLoginErr("올바른 링크로 접속해 주세요.");
+    return;
+  }
+  try {
+    const res = await fetch(`${BASE}/api/auth/verify`, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ token: urlToken, phone })
+    });
+    const data = await res.json();
+    if (!res.ok) { showLoginErr("코드가 일치하지 않습니다."); return; }
+    AUTH = { token: urlToken, phone, holder: data.holder };
+    document.getElementById("header-user").textContent = data.holder + " 님";
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("app").style.display = "flex";
+    loadHoldings();
+    loadSignals();
+  } catch(e) {
+    showLoginErr("서버 연결에 실패했습니다.");
+  }
+}
+
+function doLogout() {
+  AUTH = { token:"", phone:"", holder:"" };
+  document.getElementById("login-screen").style.display = "flex";
+  document.getElementById("app").style.display = "none";
+  document.getElementById("input-phone").value = "";
+}
+
+function showLoginErr(msg) {
+  const el = document.getElementById("login-err");
+  el.textContent = msg; el.style.display = "block";
+  setTimeout(() => el.style.display = "none", 3000);
+}
+
+// Enter 키
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    if (document.getElementById("login-screen").style.display !== "none") doLogin();
+  }
+});
+
+// ════════════════════════════════════════
+// 탭 전환
+// ════════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll(".tab-btn").forEach((b,i) => {
+    b.classList.toggle("active", ["lookup","holdings","signals"][i] === name);
+  });
+  document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+  document.getElementById("tab-"+name).classList.add("active");
+}
+
+// ════════════════════════════════════════
+// 탭1: 조회종목
+// ════════════════════════════════════════
+let _lookupTimer = null;
+
+async function requestLookup() {
+  const code = document.getElementById("lookup-code").value.trim().padStart(6,"0");
+  const name = document.getElementById("lookup-name").value.trim() || code;
+  if (!code || code === "000000") { alert("종목코드를 입력하세요."); return; }
+
+  const area = document.getElementById("lookup-result-area");
+  area.innerHTML = `<div class="pending-msg"><span class="spinner"></span>${name} 분석 요청 중...</div>`;
+
+  await fetch(`${BASE}/api/lookup/request`, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ token: AUTH.token, phone: AUTH.phone, code, name })
+  });
+
+  // 폴링 시작
+  if (_lookupTimer) clearInterval(_lookupTimer);
+  _lookupTimer = setInterval(() => pollLookup(code, name), 3000);
+}
+
+async function pollLookup(code, name) {
+  try {
+    const res  = await fetch(`${BASE}/api/lookup/result?token=${AUTH.token}&phone=${AUTH.phone}&code=${code}`);
+    const data = await res.json();
+    if (data.status === "ready") {
+      clearInterval(_lookupTimer);
+      renderLookup(code, name, data.result);
+    }
+  } catch(e) {}
+}
+
+function renderLookup(code, name, r) {
+  if (!r) return;
+  const area = document.getElementById("lookup-result-area");
+  const priceFmt = n => n ? Number(n).toLocaleString() + "원" : "-";
+  const pctColor = v => v > 0 ? "pos-text" : v < 0 ? "neg-text" : "neu-text";
+  const trendBadge = t => {
+    if (!t) return "<span class='neu-text'>-</span>";
+    const cls = t.includes("UP") ? "badge-up" : t.includes("DN")||t.includes("DOWN") ? "badge-down" : "badge-side";
+    return `<span class='${cls}'>${t}</span>`;
+  };
+
+  const cur   = r.cur_price || 0;
+  const gap60 = r.gap_60d   || 0;
+  const trend = r.trend_info || {};
+
+  // 추세 5개 지표 렌더
+  const buildTrend = (tf) => {
+    const t = (trend[tf] || {});
+    return `
+    <div class="card">
+      <div class="card-title">${tf} 추세</div>
+      <div class="trend-grid">
+        ${["ma","macd","rsi","adx","vol"].map(k => `
+        <div class="trend-cell">
+          <div class="t-label">${{ma:"이평",macd:"MACD",rsi:"RSI",adx:"ADX",vol:"거래량"}[k]}</div>
+          <div class="t-val">${trendBadge(t[k])}</div>
+        </div>`).join("")}
+      </div>
+      <div class="analysis-row" style="margin-top:10px;">
+        <span class="analysis-label">종합추세</span>
+        <span class="analysis-val">${trendBadge(t.overall)}</span>
+      </div>
+    </div>`;
+  };
+
+  // 개별 지표 목록
+  const indicators = r.indicators || [];
+  const indHtml = indicators.length ? `
+    <div class="card">
+      <div class="card-title">개별 지표 분석</div>
+      <div class="indicator-list">
+        ${indicators.map(i => `
+        <div class="ind-row">
+          <div class="ind-dot ${i.ok?"dot-green":"dot-red"}"></div>
+          <div class="ind-name">${i.name}</div>
+          <div class="ind-val ${pctColor(i.value)}">${i.display || i.value || ""}</div>
+        </div>`).join("")}
+      </div>
+    </div>` : "";
+
+  area.innerHTML = `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div style="font-size:18px;font-weight:800;">${name}</div>
+          <div style="font-size:12px;color:var(--muted);">${code}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:22px;font-weight:800;">${priceFmt(cur)}</div>
+          <div class="${pctColor(gap60)}" style="font-size:14px;font-weight:700;">
+            60일 종이격 ${gap60 > 0 ? "+" : ""}${gap60}%
+          </div>
+        </div>
+      </div>
+    </div>
+    ${buildTrend("월봉")}
+    ${buildTrend("주봉")}
+    ${buildTrend("일봉")}
+    ${indHtml}
+  `;
+}
+
+// ════════════════════════════════════════
+// 탭2: 보유종목
+// ════════════════════════════════════════
+async function loadHoldings() {
+  const area = document.getElementById("holdings-area");
+  const spin = document.getElementById("holdings-spin");
+  spin.innerHTML = '<span class="spinner"></span>';
+  try {
+    const res  = await fetch(`${BASE}/api/holdings?token=${AUTH.token}&phone=${AUTH.phone}`);
+    const data = await res.json();
+    spin.innerHTML = "";
+    if (!res.ok) { area.innerHTML = '<div class="empty-msg">데이터를 불러오지 못했습니다.</div>'; return; }
+    renderHoldings(data);
+  } catch(e) {
+    spin.innerHTML = "";
+    area.innerHTML = '<div class="empty-msg">서버 연결 실패.</div>';
+  }
+}
+
+function renderHoldings(data) {
+  const area   = document.getElementById("holdings-area");
+  const s      = data.summary || {};
+  const items  = data.holdings || [];
+  const pFmt   = n => Number(n||0).toLocaleString();
+  const pctClr = v => v > 0 ? "pos-text" : v < 0 ? "neg-text" : "neu-text";
+
+  if (!items.length) {
+    area.innerHTML = '<div class="empty-msg">보유 종목이 없습니다.</div>'; return;
+  }
+
+  const summaryHtml = `
+  <div class="summary-grid">
+    <div class="summary-cell">
+      <div class="s-label">총 매입액</div>
+      <div class="s-val">${pFmt(s.total_entry)}원</div>
+    </div>
+    <div class="summary-cell">
+      <div class="s-label">총 평가액</div>
+      <div class="s-val">${pFmt(s.total_eval)}원</div>
+    </div>
+    <div class="summary-cell">
+      <div class="s-label">총 수익금</div>
+      <div class="s-val ${pctClr(s.total_profit)}">${s.total_profit >= 0 ? "+" : ""}${pFmt(s.total_profit)}원</div>
+    </div>
+    <div class="summary-cell">
+      <div class="s-label">총 수익률</div>
+      <div class="s-val ${pctClr(s.total_pct)}">${s.total_pct >= 0 ? "+" : ""}${(s.total_pct||0).toFixed(2)}%</div>
+    </div>
+  </div>`;
+
+  const itemsHtml = items.map(h => {
+    const ep  = h.entry_price || 0;
+    const cp  = h.cur_price   || 0;
+    const qty = h.qty         || 0;
+    const eval_ = cp * qty;
+    const prof  = (cp - ep) * qty;
+    const pct   = ep > 0 ? ((cp - ep) / ep * 100) : 0;
+    return `
+    <div class="holding-item" onclick="showHoldingDetail(${JSON.stringify(h).replace(/"/g,'&quot;')})">
+      <div class="holding-top">
+        <div>
+          <div class="holding-name">${h.name}</div>
+          <div class="holding-code">${h.code}</div>
+        </div>
+        <div class="holding-pct ${pctClr(pct)}">${pct >= 0 ? "+" : ""}${pct.toFixed(2)}%</div>
+      </div>
+      <div class="holding-details">
+        <div class="hd-cell"><div class="hd-label">매입가</div><div class="hd-val">${pFmt(ep)}원</div></div>
+        <div class="hd-cell"><div class="hd-label">현재가</div><div class="hd-val">${pFmt(cp)}원</div></div>
+        <div class="hd-cell"><div class="hd-label">수량</div><div class="hd-val">${qty}주</div></div>
+        <div class="hd-cell"><div class="hd-label">평가액</div><div class="hd-val">${pFmt(eval_)}원</div></div>
+      </div>
+    </div>`;
+  }).join("");
+
+  const ts = data.timestamp ? `<div style="font-size:11px;color:var(--muted);margin-bottom:12px;">기준: ${data.timestamp.slice(0,16).replace("T"," ")}</div>` : "";
+  area.innerHTML = ts + summaryHtml + `<div class="section-title">보유 종목 (${items.length}종목)</div>` + itemsHtml;
+}
+
+function showHoldingDetail(h) {
+  const pFmt   = n => Number(n||0).toLocaleString();
+  const pctClr = v => v > 0 ? "pos-text" : v < 0 ? "neg-text" : "neu-text";
+  const ep  = h.entry_price || 0;
+  const cp  = h.cur_price   || 0;
+  const qty = h.qty         || 0;
+  const pct = ep > 0 ? ((cp - ep) / ep * 100) : 0;
+  const prof = (cp - ep) * qty;
+
+  document.getElementById("modal-body").innerHTML = `
+    <div style="font-size:20px;font-weight:800;margin-bottom:4px;">${h.name}</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:20px;">${h.code}</div>
+    ${[
+      ["매입가",    pFmt(ep)+"원"],
+      ["현재가",    pFmt(cp)+"원"],
+      ["수량",      qty+"주"],
+      ["매입금액",  pFmt(ep*qty)+"원"],
+      ["평가금액",  pFmt(cp*qty)+"원"],
+      ["수익금액",  `<span class="${pctClr(prof)}">${prof>=0?"+":""}${pFmt(prof)}원</span>`],
+      ["수익률",    `<span class="${pctClr(pct)}">${pct>=0?"+":""}${pct.toFixed(2)}%</span>`],
+      ["메모",      h.memo || "-"],
+      ["추가일",    (h.added_at||"").slice(0,10)],
+    ].map(([k,v]) => `
+      <div class="analysis-row">
+        <span class="analysis-label">${k}</span>
+        <span class="analysis-val">${v}</span>
+      </div>`).join("")}
+  `;
+  document.getElementById("modal").classList.add("open");
+}
+
+// ════════════════════════════════════════
+// 탭3: 추천종목
+// ════════════════════════════════════════
+const SIG_LABELS = {
+  "TRANS_UP_히스트":  "⚡ 추세전환+히스트",
+  "TRANS_UP_단독":    "⚡ 추세전환 A등급",
+  "TRANS_UP_기관D20": "⚡ 추세전환+기관매수",
+  "UP_히스트중기":    "📊 상승추세+히스트",
+  "UP_히스트_S8강화": "📊 상승+CCW S8",
+};
+
+async function loadSignals() {
+  const area = document.getElementById("signals-area");
+  const spin = document.getElementById("signals-spin");
+  spin.innerHTML = '<span class="spinner"></span>';
+  try {
+    const res  = await fetch(`${BASE}/api/signals?token=${AUTH.token}&phone=${AUTH.phone}`);
+    const data = await res.json();
+    spin.innerHTML = "";
+    if (!res.ok) { area.innerHTML = '<div class="empty-msg">데이터를 불러오지 못했습니다.</div>'; return; }
+    renderSignals(data);
+  } catch(e) {
+    spin.innerHTML = "";
+    area.innerHTML = '<div class="empty-msg">서버 연결 실패.</div>';
+  }
+}
+
+function renderSignals(data) {
+  const area    = document.getElementById("signals-area");
+  const signals = data.signals || [];
+  const date    = data.date || "";
+  const ts      = data.timestamp ? data.timestamp.slice(0,16).replace("T"," ") : "";
+
+  if (!signals.length) {
+    area.innerHTML = '<div class="empty-msg">추천종목이 없습니다.<br>매일 오후 5시에 업데이트됩니다.</div>';
+    return;
+  }
+
+  const dateLine = date ? `<div class="signal-date">📅 ${date.slice(0,4)}-${date.slice(4,6)}-${date.slice(6,8)} 기준 | 업데이트: ${ts}</div>` : "";
+
+  const html = signals.map(s => {
+    const grade = s.grade || "C";
+    const label = SIG_LABELS[s.signal_type] || s.signal_type || "";
+    const tags  = [];
+    if (s.hist_up)   tags.push("📈 히스트↑");
+    if (s.inst_buy)  tags.push("🏦 기관매수");
+    if (s.ccw)       tags.push(`CCW ${s.ccw}`);
+    return `
+    <div class="signal-item" onclick="showSignalDetail(${JSON.stringify(s).replace(/"/g,'&quot;')})">
+      <div class="signal-top">
+        <div>
+          <div class="signal-name">${s.name || s.code}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">${s.code}</div>
+        </div>
+        <div class="signal-grade grade-${grade}">${grade}</div>
+      </div>
+      <div class="signal-type">${label}</div>
+      <div class="signal-tags">${tags.map(t=>`<span class="signal-tag">${t}</span>`).join("")}</div>
+    </div>`;
+  }).join("");
+
+  area.innerHTML = dateLine + html;
+}
+
+function showSignalDetail(s) {
+  const grade = s.grade || "C";
+  const label = SIG_LABELS[s.signal_type] || s.signal_type || "";
+  const h     = s.header || {};
+
+  document.getElementById("modal-body").innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+      <div>
+        <div style="font-size:20px;font-weight:800;">${s.name || s.code}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">${s.code}</div>
+      </div>
+      <div class="signal-grade grade-${grade}">${grade}</div>
+    </div>
+    <div class="signal-type" style="margin-bottom:16px;">${label}</div>
+    ${h.header_text ? `<pre style="font-size:12px;color:var(--muted);white-space:pre-wrap;margin-bottom:16px;font-family:monospace;">${h.header_text}</pre>` : ""}
+    ${[
+      ["추세구간", s.trend || "-"],
+      ["전환감지", s.trend_c || "-"],
+      ["CCW",      s.ccw || "-"],
+      ["MACD히스트",s.hist_up ? "증가 ✅" : "감소 ❌"],
+      ["기관순매수",s.inst_buy ? "✅" : "❌"],
+      ["복수신호",  (s.all_signals || []).join(", ") || "-"],
+    ].map(([k,v]) => `
+      <div class="analysis-row">
+        <span class="analysis-label">${k}</span>
+        <span class="analysis-val">${v}</span>
+      </div>`).join("")}
+  `;
+  document.getElementById("modal").classList.add("open");
+}
+
+// ════════════════════════════════════════
+// 모달
+// ════════════════════════════════════════
+function closeModal(e) {
+  if (!e || e.target === document.getElementById("modal")) {
+    document.getElementById("modal").classList.remove("open");
+  }
+}
+
+// ════════════════════════════════════════
+// 자동 새로고침 (3분)
+// ════════════════════════════════════════
+setInterval(() => {
+  if (AUTH.token && AUTH.phone) {
+    loadHoldings();
+    loadSignals();
+  }
+}, 3 * 60 * 1000);
+</script>
+</body>
+</html>
