@@ -405,12 +405,13 @@ body {
 
   <div class="login-title">SHE 투자정보</div>
   <div class="login-subtitle">주식투자 정보서비스</div>
+  <div id="login-holder-name" style="font-size:18px;font-weight:800;color:var(--accent2);margin-bottom:4px;text-align:center;display:none;"></div>
   <div class="login-sub">보유자 전용 · 실시간 투자정보</div>
   <div class="login-card">
-    <label>코드 입력</label>
-    <input type="tel" id="input-phone" placeholder="등록된 코드를 입력하세요" maxlength="11">
+    <label>전화번호</label>
+    <input type="tel" id="input-phone" placeholder="등록된 전화번호를 입력하세요" maxlength="11">
     <button class="btn-primary" onclick="doLogin()">입장하기</button>
-    <div class="login-err" id="login-err">코드를 확인해 주세요.</div>
+    <div class="login-err" id="login-err">전화번호를 확인해 주세요.</div>
   </div>
 </div>
 
@@ -480,13 +481,26 @@ let AUTH = { token: "", phone: "", holder: "" };
 // URL 파라미터에서 token 추출
 const urlToken = new URLSearchParams(location.search).get("token") || "";
 
+// 토큰으로 보유자명 미리 조회
+if (urlToken) {
+  fetch(`${BASE}/api/auth/holder?token=${urlToken}`)
+    .then(r => r.json())
+    .then(d => {
+      if (d.holder) {
+        const el = document.getElementById("login-holder-name");
+        el.textContent = d.holder + " 님, 안녕하세요 👋";
+        el.style.display = "block";
+      }
+    }).catch(() => {});
+}
+
 // ════════════════════════════════════════
 // 인증
 // ════════════════════════════════════════
 async function doLogin() {
   const phone = document.getElementById("input-phone").value.replace(/-/g,"").trim();
   if (!phone || phone.length < 10) {
-    showLoginErr("코드를 올바르게 입력해 주세요.");
+    showLoginErr("전화번호를 올바르게 입력해 주세요.");
     return;
   }
   if (!urlToken) {
@@ -500,7 +514,7 @@ async function doLogin() {
       body: JSON.stringify({ token: urlToken, phone })
     });
     const data = await res.json();
-    if (!res.ok) { showLoginErr("코드가 일치하지 않습니다."); return; }
+    if (!res.ok) { showLoginErr("전화번호가 일치하지 않습니다."); return; }
     AUTH = { token: urlToken, phone, holder: data.holder };
     document.getElementById("header-user").textContent = data.holder + " 님";
     document.getElementById("login-screen").style.display = "none";
@@ -738,25 +752,33 @@ function showHoldingDetail(h) {
   const pct = ep > 0 ? ((cp - ep) / ep * 100) : 0;
   const prof = (cp - ep) * qty;
 
-  document.getElementById("modal-body").innerHTML = `
-    <div style="font-size:20px;font-weight:800;margin-bottom:4px;">${h.name}</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:20px;">${h.code}</div>
-    ${[
-      ["매입가",    pFmt(ep)+"원"],
-      ["현재가",    pFmt(cp)+"원"],
-      ["수량",      qty+"주"],
-      ["매입금액",  pFmt(ep*qty)+"원"],
-      ["평가금액",  pFmt(cp*qty)+"원"],
-      ["수익금액",  `<span class="${pctClr(prof)}">${prof>=0?"+":""}${pFmt(prof)}원</span>`],
-      ["수익률",    `<span class="${pctClr(pct)}">${pct>=0?"+":""}${pct.toFixed(2)}%</span>`],
-      ["메모",      h.memo || "-"],
-      ["추가일",    (h.added_at||"").slice(0,10)],
-    ].map(([k,v]) => `
-      <div class="analysis-row">
-        <span class="analysis-label">${k}</span>
-        <span class="analysis-val">${v}</span>
-      </div>`).join("")}
-  `;
+  const rows = [
+    ["매입가",   pFmt(ep)+"원"],
+    ["현재가",   pFmt(cp)+"원"],
+    ["수량",     qty+"주"],
+    ["매입금액", pFmt(ep*qty)+"원"],
+    ["평가금액", pFmt(cp*qty)+"원"],
+    ["수익금액", (prof>=0?"+":"")+pFmt(prof)+"원"],
+    ["수익률",   (pct>=0?"+":"")+pct.toFixed(2)+"%"],
+    ["메모",     h.memo || "-"],
+    ["추가일",   (h.added_at||"").slice(0,10)],
+  ];
+
+  let rowsHtml = rows.map(([k,v]) =>
+    '<div class="analysis-row"><span class="analysis-label">'+k+'</span><span class="analysis-val">'+v+'</span></div>'
+  ).join("");
+
+  document.getElementById("modal-body").innerHTML =
+    '<div style="font-size:20px;font-weight:800;margin-bottom:4px;">'+h.name+'</div>' +
+    '<div style="font-size:12px;color:var(--muted);margin-bottom:20px;">'+h.code+'</div>' +
+    rowsHtml +
+    '<div style="margin-top:20px;">' +
+    '<button onclick="requestLookupFromHolding(''+h.code+'',''+h.name+'')" ' +
+    'style="width:100%;padding:14px;background:linear-gradient(135deg,#ff3d8f,#c026d3);' +
+    'color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;' +
+    'cursor:pointer;box-shadow:0 4px 16px rgba(255,61,143,0.35);">' +
+    '📊 종목 분석 요청</button></div>';
+
   document.getElementById("modal").classList.add("open");
 }
 
@@ -851,7 +873,17 @@ function showSignalDetail(s) {
         <span class="analysis-label">${k}</span>
         <span class="analysis-val">${v}</span>
       </div>`).join("")}
-  `;
+  \`;
+  // 분석 버튼 추가
+  document.getElementById("modal-body").innerHTML += \`
+    <div style="margin-top:20px;">
+      <button onclick="requestLookupFromHolding('\${h.code}','\${h.name}')"
+        style="width:100%;padding:14px;background:linear-gradient(135deg,#ff3d8f,#c026d3);
+        color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;
+        cursor:pointer;box-shadow:0 4px 16px rgba(255,61,143,0.35);">
+        📊 종목 분석 요청
+      </button>
+    </div>\`;
   document.getElementById("modal").classList.add("open");
 }
 

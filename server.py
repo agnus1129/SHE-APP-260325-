@@ -24,8 +24,10 @@ PUSH_SECRET_KEY = os.environ.get("PUSH_SECRET_KEY", "SHE_SECRET_2026")
 ADMIN_SECRET    = os.environ.get("ADMIN_SECRET",    "SHE_ADMIN_2026")
 PORT            = int(os.environ.get("PORT", 8080))
 
-DATA_DIR = Path("data")
-DATA_DIR.mkdir(exist_ok=True)
+DATA_DIR = Path(os.environ.get("RAILWAY_VOLUME_MOUNT_PATH", "")) / "data" \
+           if os.environ.get("RAILWAY_VOLUME_MOUNT_PATH") \
+           else Path("data")
+DATA_DIR.mkdir(exist_ok=True, parents=True)
 
 # 데이터 파일
 F_USERS     = DATA_DIR / "users.json"         # 사용자 목록 {token: {holder, phone, ...}}
@@ -153,11 +155,30 @@ def admin_create_user():
 def admin_delete_user(token):
     """사용자 삭제"""
     users = _load(F_USERS, default={})
-    if token not in users:
+    # URL 디코딩된 토큰으로도 시도
+    from urllib.parse import unquote
+    token_decoded = unquote(token)
+    # 정확히 일치하는 토큰 찾기
+    matched = None
+    for k in list(users.keys()):
+        if k == token or k == token_decoded:
+            matched = k
+            break
+    if not matched:
         return jsonify({"error": "사용자 없음"}), 404
-    holder = users.pop(token, {}).get("holder","")
+    holder = users.pop(matched, {}).get("holder","")
     _save(F_USERS, users)
     return jsonify({"status": "ok", "deleted": holder})
+
+
+@app.route("/api/auth/holder", methods=["GET"])
+def get_holder_by_token():
+    """토큰으로 보유자명 조회 (로그인 화면에서 이름 표시용)"""
+    token = request.args.get("token","")
+    user  = _get_user(token)
+    if not user:
+        return jsonify({"error": "없음"}), 404
+    return jsonify({"holder": user.get("holder",""), "token": token})
 
 
 # ════════════════════════════════════════════════════════
