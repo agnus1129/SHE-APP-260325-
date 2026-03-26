@@ -97,7 +97,12 @@ def _verify_user(token, phone):
 def admin_list_users():
     """전체 사용자 목록 조회"""
     users = _load(F_USERS, default={})
-    return jsonify({"users": [{"token": t, **u} for t, u in users.items()]})
+    base_url = request.host_url.rstrip("/")
+    result = []
+    for t, u in users.items():
+        link = u.get("link") or f"{base_url}/?token={t}"
+        result.append({"token": t, "link": link, **u})
+    return jsonify({"users": result})
 
 @app.route("/api/admin/users", methods=["POST"])
 @require_admin_key
@@ -119,24 +124,27 @@ def admin_create_user():
     for token, u in users.items():
         if u.get("holder") == holder:
             base_url = request.host_url.rstrip("/")
+            link = f"{base_url}/?token={token}"
             return jsonify({
                 "token": token,
-                "link": f"{base_url}/?token={token}",
+                "link": link,
                 "already_exists": True
             })
 
     # 새 토큰 생성
     token = secrets.token_urlsafe(16)
+    base_url = request.host_url.rstrip("/")
+    link = f"{base_url}/?token={token}"
     users[token] = {
         "holder":     holder,
         "phone":      phone,
+        "link":       link,          # link 저장
         "created_at": datetime.now().isoformat(),
     }
     _save(F_USERS, users)
-    base_url = request.host_url.rstrip("/")
     return jsonify({
         "token": token,
-        "link":  f"{base_url}/?token={token}",
+        "link":  link,
         "holder": holder
     })
 

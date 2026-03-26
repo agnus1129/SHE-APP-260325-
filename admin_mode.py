@@ -849,15 +849,17 @@ class UserTab(QWidget):
         form_layout.addLayout(row)
         layout.addWidget(form_card)
 
-        # ── 사용자 목록 테이블 ──
-        self.table = QTableWidget(0, 4)
-        self.table.setHorizontalHeaderLabels(["보유자명","전화번호","접속 링크","관리"])
+        # ── 사용자 목록 테이블 (5컬럼) ──
+        self.table = QTableWidget(0, 5)
+        self.table.setHorizontalHeaderLabels(["보유자명", "전화번호", "접속 링크", "링크복사", "수정/삭제"])
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
-        self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
-        self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
-        self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
-        self.table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)
+        hh = self.table.horizontalHeader()
+        hh.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        hh.setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        hh.setSectionResizeMode(2, QHeaderView.Stretch)
+        hh.setSectionResizeMode(3, QHeaderView.ResizeToContents)
+        hh.setSectionResizeMode(4, QHeaderView.ResizeToContents)
         self.table.setAlternatingRowColors(False)
         layout.addWidget(self.table)
 
@@ -885,31 +887,73 @@ class UserTab(QWidget):
         for u in self._users:
             r = self.table.rowCount()
             self.table.insertRow(r)
+
+            # 보유자명
             self.table.setItem(r, 0, QTableWidgetItem(u.get("holder","")))
+            # 전화번호
             self.table.setItem(r, 1, QTableWidgetItem(u.get("phone","")))
+            # 접속 링크 (파란색 텍스트로 표시)
             link = u.get("link","")
             link_item = QTableWidgetItem(link)
             link_item.setForeground(QColor("#58a6ff"))
+            link_item.setToolTip(link)
             self.table.setItem(r, 2, link_item)
 
-            # 복사 + 삭제 버튼
+            # 링크복사 버튼 (노란색)
+            btn_copy = QPushButton("📋 링크복사")
+            btn_copy.setMaximumHeight(28)
+            btn_copy.setStyleSheet(f"background:{C_BTN_YLW}; color:black; font-size:13px; font-weight:bold;")
+            btn_copy.clicked.connect(lambda _, l=link: self._copy_link(l))
+            self.table.setCellWidget(r, 3, btn_copy)
+
+            # 수정 + 삭제 버튼
             btn_frame = QWidget()
             btn_layout = QHBoxLayout(btn_frame)
-            btn_layout.setContentsMargins(4,2,4,2); btn_layout.setSpacing(4)
-            btn_copy = QPushButton("📋")
-            btn_copy.setFixedSize(32,26)
-            btn_copy.setToolTip("링크 복사")
-            btn_copy.clicked.connect(lambda _, l=link: self._copy_link(l))
-            btn_del = QPushButton("🗑️")
-            btn_del.setFixedSize(32,26)
-            btn_del.setStyleSheet(f"background:{C_BTN_RED};")
+            btn_layout.setContentsMargins(2,2,2,2); btn_layout.setSpacing(4)
+
+            btn_edit = QPushButton("✏️ 수정")
+            btn_edit.setMaximumHeight(28)
+            btn_edit.setStyleSheet(f"background:{C_BTN}; font-size:13px; font-weight:bold;")
+            btn_edit.clicked.connect(lambda _, uu=u: self._edit_user(uu))
+
+            btn_del = QPushButton("🗑️ 삭제")
+            btn_del.setMaximumHeight(28)
+            btn_del.setStyleSheet(f"background:{C_BTN_RED}; font-size:13px; font-weight:bold;")
             btn_del.clicked.connect(lambda _, t=u.get("token",""): self._delete_user(t))
-            btn_layout.addWidget(btn_copy)
+
+            btn_layout.addWidget(btn_edit)
             btn_layout.addWidget(btn_del)
-            self.table.setCellWidget(r, 3, btn_frame)
+            self.table.setCellWidget(r, 4, btn_frame)
 
         self.table.verticalHeader().setDefaultSectionSize(36)
         self.status_lbl.setText(f"총 {len(self._users)}명")
+
+
+    def _edit_user(self, user: dict):
+        """전화번호 수정 다이얼로그"""
+        from PyQt5.QtWidgets import QInputDialog
+        holder = user.get("holder","")
+        old_phone = user.get("phone","")
+        token = user.get("token","")
+        new_phone, ok = QInputDialog.getText(
+            self, "전화번호 수정",
+            f"{holder}의 전화번호를 수정하세요:",
+            text=old_phone
+        )
+        if not ok or not new_phone.strip():
+            return
+        try:
+            from data_pusher import pusher
+            # 기존 삭제 후 재등록
+            pusher.delete_user(token)
+            result = pusher.register_user(holder, new_phone.strip().replace("-",""))
+            if result:
+                QMessageBox.information(self, "수정 완료", f"{holder} 전화번호가 수정됐습니다.")
+                self.refresh()
+            else:
+                QMessageBox.warning(self, "오류", "수정에 실패했습니다.")
+        except Exception as e:
+            QMessageBox.warning(self, "오류", f"수정 실패: {e}")
 
     def _register_user(self):
         holder = self.f_holder.text().strip()

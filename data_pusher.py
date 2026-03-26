@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # ════════════════════════════════════════
 # ■ 설정
 # ════════════════════════════════════════
-RAILWAY_URL     = os.environ.get("RAILWAY_URL",     "https://your-app.railway.app")
+RAILWAY_URL     = os.environ.get("RAILWAY_URL",     "https://she-app-260325-production.up.railway.app")
 PUSH_SECRET_KEY = os.environ.get("PUSH_SECRET_KEY", "SHE_SECRET_2026")
 ADMIN_SECRET    = os.environ.get("ADMIN_SECRET",    "SHE_ADMIN_2026")
 PUSH_INTERVAL   = 300   # 5분
