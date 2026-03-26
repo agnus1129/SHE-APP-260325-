@@ -381,7 +381,15 @@ def lookup_result():
 
 @app.route("/health")
 def health():
-    return jsonify({"status": "ok", "time": datetime.now().isoformat(), "version": "SHE-1.0"})
+    users = _load(F_USERS, default={})
+    return jsonify({
+        "status": "ok",
+        "time": datetime.now().isoformat(),
+        "version": "SHE-1.0",
+        "data_dir": str(DATA_DIR),
+        "users_count": len(users),
+        "users_file_exists": F_USERS.exists(),
+    })
 
 @app.route("/")
 def index():
