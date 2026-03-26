@@ -97,7 +97,7 @@ def _verify_user(token, phone):
 def admin_list_users():
     """전체 사용자 목록 조회"""
     users = _load(F_USERS, default={})
-    base_url = request.host_url.rstrip("/")
+    base_url = ("https://" + request.host).rstrip("/")
     result = []
     for t, u in users.items():
         link = u.get("link") or f"{base_url}/?token={t}"
@@ -123,7 +123,7 @@ def admin_create_user():
     # 이미 존재하면 기존 토큰 반환
     for token, u in users.items():
         if u.get("holder") == holder:
-            base_url = request.host_url.rstrip("/")
+            base_url = ("https://" + request.host).rstrip("/")
             link = f"{base_url}/?token={token}"
             return jsonify({
                 "token": token,
@@ -133,7 +133,7 @@ def admin_create_user():
 
     # 새 토큰 생성
     token = secrets.token_urlsafe(16)
-    base_url = request.host_url.rstrip("/")
+    base_url = ("https://" + request.host).rstrip("/")
     link = f"{base_url}/?token={token}"
     users[token] = {
         "holder":     holder,

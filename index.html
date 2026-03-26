@@ -858,6 +858,14 @@ function showSignalDetail(s) {
 // ════════════════════════════════════════
 // 모달
 // ════════════════════════════════════════
+async function requestLookupFromHolding(code, name) {
+  closeModal();
+  switchTab('lookup');
+  document.getElementById("lookup-code").value = code;
+  document.getElementById("lookup-name").value = name;
+  await requestLookup();
+}
+
 function closeModal(e) {
   if (!e || e.target === document.getElementById("modal")) {
     document.getElementById("modal").classList.remove("open");
