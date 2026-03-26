@@ -11,7 +11,7 @@
   --gold:#e3b341; --text:#f2ecf8; --muted:#9080a8; --radius:14px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;min-height:100vh;max-width:480px;margin:0 auto;}
+body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;min-height:100vh;max-width:480px;margin:0 auto;font-size:15px;line-height:1.75;}
 #login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px 24px;background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(255,61,143,0.13) 0%,transparent 70%),var(--bg);position:relative;overflow:hidden;}
 #login-screen::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,61,143,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,61,143,0.07) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;}
 .login-graphic{position:relative;width:200px;height:120px;margin-bottom:28px;flex-shrink:0;}
@@ -35,7 +35,7 @@ body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','M
 .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
 .tab-content{display:none;padding:16px;flex:1;}
 .tab-content.active{display:block;}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:14px;}
 .lookup-form{display:flex;gap:8px;margin-bottom:16px;}
 .lookup-form input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:15px;padding:11px 13px;outline:none;}
 .lookup-form input:focus{border-color:var(--accent);}
@@ -47,27 +47,27 @@ body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','M
 .holding-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;cursor:pointer;transition:border-color 0.2s;}
 .holding-item:hover{border-color:var(--accent);}
 .holding-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
-.holding-name{font-size:15px;font-weight:700;}
+.holding-name{font-size:17px;font-weight:800;}
 .holding-code{font-size:11px;color:var(--muted);margin-top:2px;}
-.holding-pct{font-size:18px;font-weight:800;}
+.holding-pct{font-size:21px;font-weight:900;}
 .holding-details{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
 .hd-label{font-size:10px;color:var(--muted);}
-.hd-val{font-size:13px;font-weight:600;}
+.hd-val{font-size:15px;font-weight:700;}
 .signal-date{font-size:12px;color:var(--muted);margin-bottom:12px;}
 .signal-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;cursor:pointer;transition:border-color 0.2s;}
 .signal-item:hover{border-color:var(--gold);}
 .signal-top{display:flex;justify-content:space-between;margin-bottom:8px;}
-.signal-name{font-size:15px;font-weight:700;}
+.signal-name{font-size:17px;font-weight:800;}
 .signal-grade{font-size:12px;font-weight:800;padding:2px 8px;border-radius:20px;border:1px solid;}
 .grade-A{color:var(--gold);border-color:var(--gold);background:rgba(227,179,65,0.1);}
 .grade-B{color:var(--accent);border-color:var(--accent);background:rgba(255,61,143,0.1);}
 .grade-C{color:var(--muted);border-color:var(--border);}
 .signal-type{font-size:12px;color:var(--accent);background:rgba(255,61,143,0.1);padding:3px 8px;border-radius:4px;display:inline-block;}
-.analysis-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);}
+.analysis-row{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border);}
 .analysis-row:last-child{border-bottom:none;}
-.analysis-label{color:var(--muted);font-size:13px;}
-.analysis-val{font-weight:600;font-size:13px;}
-.ind-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;border-bottom:1px solid var(--border);}
+.analysis-label{color:var(--muted);font-size:14px;}
+.analysis-val{font-weight:700;font-size:15px;}
+.ind-row{display:flex;align-items:center;gap:8px;padding:10px 0;font-size:15px;border-bottom:1px solid var(--border);line-height:1.7;}
 .ind-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .dot-green{background:var(--green);} .dot-red{background:var(--red);}
 .ind-name{flex:1;color:var(--muted);}
@@ -463,14 +463,14 @@ function loadSignals(){
 }
 
 var SIG_LABELS={
-  "TRANS_UP_히스트":  "⚡ 횡보→상승 전환 + 매수 모멘텀 강화",
-  "TRANS_UP_단독":    "⚡ 횡보→상승 전환 (A등급 우량주)",
-  "TRANS_UP_기관D20": "⚡ 횡보→상승 전환 + 기관투자자 20일 순매수",
-  "UP_히스트중기":    "📊 상승추세 지속 + 매수 모멘텀 재강화",
-  "UP_히스트_S8강화": "📊 상승추세 + 저점 매집 구간 진입",
-  "TRANS_UP_CCW_S2":  "⚡ 횡보→상승 전환 + 상승가속 구간 진입",
-  "UP_대차감소":      "📊 상승추세 + 공매도 물량 감소",
-  "UP_기관D20":       "📊 상승추세 + 기관투자자 20일 순매수",
+  "TRANS_UP_히스트":  "⚡ 횡보→상승 전환 + 매수세 증가",
+  "TRANS_UP_단독":    "⚡ 횡보→상승 전환 (우량주)",
+  "TRANS_UP_기관D20": "⚡ 횡보→상승 전환 + 기관 20일 매수중",
+  "UP_히스트중기":    "📊 상승추세 + 매수세 재강화",
+  "UP_히스트_S8강화": "📊 상승추세 + 바닥 매집 구간",
+  "TRANS_UP_CCW_S2":  "⚡ 횡보→상승 전환 + 상승가속 진입",
+  "UP_대차감소":      "📊 상승추세 + 공매도 감소",
+  "UP_기관D20":       "📊 상승추세 + 기관 20일 매수중",
 };
 
 function renderSignals(data){
@@ -492,21 +492,25 @@ function renderSignals(data){
   area.innerHTML=h;
 }
 
+function _trendKor(t){
+  var m={"TRANS_UP":"상승 전환","UP":"상승중","SIDE":"횡보","DOWN":"하락","TRANS_DOWN":"하락 전환"};
+  return m[t]||t||"-";
+}
 function showSignal(key){
   var s=signalData[key];if(!s)return;
   var grade=s.grade||"C";var label=SIG_LABELS[s.signal_type]||s.signal_type||"";
 
   // 시그널 유형 한글 설명
   var SIG_DESC={
-    "TRANS_UP_히스트":  "횡보하던 주가가 상승으로 전환되면서, 매수 모멘텀(MACD 히스토그램)이 증가하는 시점",
-    "TRANS_UP_단독":    "A등급 우량주가 횡보에서 상승으로 전환되는 시점 (단독 진입 가능)",
-    "TRANS_UP_기관D20": "추세전환 + 최근 20일간 기관투자자(펀드·보험 등)가 순매수 중인 종목",
-    "UP_히스트중기":    "이미 상승추세인 종목에서 매수 모멘텀이 다시 강해지는 시점 (중기 전략)",
-    "UP_히스트_S8강화": "상승추세 + 역시계곡선(CCW)이 매집 구간(S8)에 진입한 강화 신호",
-    "TRANS_UP_CCW_S2":  "추세전환 + 역시계곡선이 상승가속 구간(S2) 진입",
-    "UP_대차감소":      "상승추세 + 공매도(대차잔고)가 줄어드는 종목 (하락 압력 감소)",
-    "UP_기관D20":       "상승추세 + 기관투자자 20일 순매수 지속 중",
-  };
+  "TRANS_UP_히스트":  "오랫동안 옆으로 움직이던 주가가 위로 방향을 바꾸는 시점입니다. 동시에 매수세도 강해지고 있어 신뢰도가 높습니다.",
+  "TRANS_UP_단독":    "재무가 우량한 종목이 횡보에서 상승으로 방향을 바꾸는 시점입니다. 단독으로도 믿을 수 있는 강한 신호입니다.",
+  "TRANS_UP_기관D20": "상승 전환 시점에 기관투자자(펀드·보험·연기금 등)가 20일간 꾸준히 사들이고 있는 종목입니다.",
+  "UP_히스트중기":    "이미 오르고 있는 종목에서 매수세가 다시 강해지는 시점입니다. 추세를 따라가는 중기 전략에 적합합니다.",
+  "UP_히스트_S8강화": "상승추세이면서 저점에서 바닥을 다지는 매집 구간에 진입한 종목입니다. 조정 후 재상승 가능성이 높습니다.",
+  "TRANS_UP_CCW_S2":  "상승 전환과 동시에 상승가속 구간에 진입한 종목입니다. 두 신호가 겹쳐 신뢰도가 높습니다.",
+  "UP_대차감소":      "상승추세이면서 공매도(하락 베팅) 물량이 줄어드는 종목입니다. 하락 압력이 약해지는 긍정적 신호입니다.",
+  "UP_기관D20":       "상승추세이면서 기관투자자가 20일간 꾸준히 매수 중인 종목입니다.",
+};
 
   // 등급 설명
   var GRADE_DESC={
@@ -548,14 +552,14 @@ function showSignal(key){
   html+='<div style="font-size:12px;color:var(--accent2);font-weight:700;margin-bottom:8px;">📊 상세 지표</div>';
 
   var rows=[
-    ["추세 구간", (s.trend||"-")+" → "+(s.trend_c||"-"), "전날 대비 오늘 추세 변화 (SIDE=횡보, UP=상승)"],
+    ["추세 변화", _trendKor(s.trend)+" → "+_trendKor(s.trend_c), "전날 대비 오늘 추세 변화"],
     ["역시계곡선(CCW)", CCW_DESC[s.ccw]||s.ccw||"-", "주가-거래량 관계로 시장 국면을 파악하는 지표"],
     ["MACD 히스토그램", s.hist_up?"📈 증가 중 (매수 모멘텀 강화)":"📉 감소 중 (모멘텀 약화)", "매수/매도 모멘텀 강도"],
     ["기관 순매수", s.inst_buy?"✅ 최근 매수 중":"❌ 매수 없음", "기관투자자(펀드·보험 등)가 순매수 중인지 여부"],
   ];
 
   if(s.all_signals&&s.all_signals.length>1){
-    rows.push(["복수 신호", s.all_signals.join(", "), "여러 시그널이 동시에 발생 (신뢰도 높음)"]);
+    rows.push(["복수 신호", s.all_signals.map(function(k){return SIG_LABELS[k]||k;}).join("<br>"), "여러 신호가 동시에 발생 — 신뢰도 높음"]);
   }
 
   rows.forEach(function(row){
