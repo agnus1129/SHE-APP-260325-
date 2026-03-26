@@ -24,9 +24,7 @@ PUSH_SECRET_KEY = os.environ.get("PUSH_SECRET_KEY", "SHE_SECRET_2026")
 ADMIN_SECRET    = os.environ.get("ADMIN_SECRET",    "SHE_ADMIN_2026")
 PORT            = int(os.environ.get("PORT", 8080))
 
-DATA_DIR = Path(os.environ.get("RAILWAY_VOLUME_MOUNT_PATH", "")) / "data" \
-           if os.environ.get("RAILWAY_VOLUME_MOUNT_PATH") \
-           else Path("data")
+DATA_DIR = Path(os.environ.get("RAILWAY_VOLUME_MOUNT_PATH", "data"))
 DATA_DIR.mkdir(exist_ok=True, parents=True)
 
 # 데이터 파일
