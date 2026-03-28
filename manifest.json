@@ -1,0 +1,18 @@
+{
+  "name": "SHE 투자정보",
+  "short_name": "SHE",
+  "description": "SHE 주식 투자정보 서비스",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#06060d",
+  "theme_color": "#ff3d8f",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

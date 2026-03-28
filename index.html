@@ -2,6 +2,12 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SHE">
+<link rel="apple-touch-icon" href="/icon.svg">
+<meta name="theme-color" content="#ff3d8f">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>SHE 투자정보</title>
 <style>
@@ -370,6 +376,18 @@ function renderLookup(code,name,r){
   h+='</div></div>';
 
   var ts=r.updated_at?'<div style="font-size:10px;color:var(--muted);text-align:right;margin-top:4px;">분석: '+r.updated_at.slice(0,16).replace("T"," ")+'</div>':'';
+  // ── 차트 버튼 ──
+  h+='<div style="display:flex;gap:10px;margin-top:8px;">';
+  h+='<a href="https://finance.naver.com/item/fchart.nhn?code='+code+'" target="_blank" ';
+  h+='style="flex:1;display:block;padding:14px;background:rgba(255,61,143,0.12);border:1px solid rgba(255,61,143,0.4);';
+  h+='border-radius:10px;color:var(--accent);font-size:14px;font-weight:700;text-align:center;text-decoration:none;">';
+  h+='📈 네이버 차트</a>';
+  h+='<a href="https://finance.naver.com/item/main.nhn?code='+code+'" target="_blank" ';
+  h+='style="flex:1;display:block;padding:14px;background:rgba(255,61,143,0.06);border:1px solid var(--border);';
+  h+='border-radius:10px;color:var(--muted);font-size:14px;font-weight:700;text-align:center;text-decoration:none;">';
+  h+='🔍 종목 상세</a>';
+  h+='</div>';
+
   area.innerHTML=h+ts;
 }
 
