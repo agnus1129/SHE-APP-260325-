@@ -587,26 +587,21 @@ function showSignal(key){
   var s=signalData[key];if(!s)return;
   var grade=s.grade||"C";var label=SIG_LABELS[s.signal_type]||s.signal_type||"";
 
-  // 시그널 유형 한글 설명
   var SIG_DESC={
-  "TRANS_UP_히스트":  "오랫동안 옆으로 움직이던 주가가 위로 방향을 바꾸는 시점입니다. 동시에 매수세도 강해지고 있어 신뢰도가 높습니다.",
-  "TRANS_UP_단독":    "재무가 우량한 종목이 횡보에서 상승으로 방향을 바꾸는 시점입니다. 단독으로도 믿을 수 있는 강한 신호입니다.",
-  "TRANS_UP_기관D20": "상승 전환 시점에 기관투자자(펀드·보험·연기금 등)가 20일간 꾸준히 사들이고 있는 종목입니다.",
-  "UP_히스트중기":    "이미 오르고 있는 종목에서 매수세가 다시 강해지는 시점입니다. 추세를 따라가는 중기 전략에 적합합니다.",
-  "UP_히스트_S8강화": "상승추세이면서 저점에서 바닥을 다지는 매집 구간에 진입한 종목입니다. 조정 후 재상승 가능성이 높습니다.",
-  "TRANS_UP_CCW_S2":  "상승 전환과 동시에 상승가속 구간에 진입한 종목입니다. 두 신호가 겹쳐 신뢰도가 높습니다.",
-  "UP_대차감소":      "상승추세이면서 공매도(하락 베팅) 물량이 줄어드는 종목입니다. 하락 압력이 약해지는 긍정적 신호입니다.",
-  "UP_기관D20":       "상승추세이면서 기관투자자가 20일간 꾸준히 매수 중인 종목입니다.",
-};
-
-  // 등급 설명
+    "TRANS_UP_히스트":  "오랫동안 옆으로 움직이던 주가가 위로 방향을 바꾸는 시점입니다. 동시에 매수세도 강해지고 있어 신뢰도가 높습니다.",
+    "TRANS_UP_단독":    "재무가 우량한 종목이 횡보에서 상승으로 방향을 바꾸는 시점입니다. 단독으로도 믿을 수 있는 강한 신호입니다.",
+    "TRANS_UP_기관D20": "상승 전환 시점에 기관투자자(펀드·보험·연기금 등)가 20일간 꾸준히 사들이고 있는 종목입니다.",
+    "UP_히스트중기":    "이미 오르고 있는 종목에서 매수세가 다시 강해지는 시점입니다. 추세를 따라가는 중기 전략에 적합합니다.",
+    "UP_히스트_S8강화": "상승추세이면서 저점에서 바닥을 다지는 매집 구간에 진입한 종목입니다. 조정 후 재상승 가능성이 높습니다.",
+    "TRANS_UP_CCW_S2":  "상승 전환과 동시에 상승가속 구간에 진입한 종목입니다. 두 신호가 겹쳐 신뢰도가 높습니다.",
+    "UP_대차감소":      "상승추세이면서 공매도(하락 베팅) 물량이 줄어드는 종목입니다. 하락 압력이 약해지는 긍정적 신호입니다.",
+    "UP_기관D20":       "상승추세이면서 기관투자자가 20일간 꾸준히 매수 중인 종목입니다.",
+  };
   var GRADE_DESC={
     "A":"A등급 — 최우선 진입 후보 (우량주, 조건 강함)",
     "B":"B등급 — 우선 진입 후보",
     "C":"C등급 — 일반 진입 후보",
   };
-
-  // CCW 구간 설명
   var CCW_DESC={
     "S1":"S1 상승초입 — 하락 끝, 반등 시작",
     "S2":"S2 상승가속 — 본격 상승 구간",
@@ -617,57 +612,130 @@ function showSignal(key){
     "S7":"S7 하락과매도 — 과매도, 반등 대기",
     "S8":"S8 매집초입 — 저점 매집 구간",
   };
+  var TF_IND_NAME={
+    "이동평균 정배열":"📈 이평 정배열",
+    "MACD 0선 위치":"📊 MACD 0선",
+    "ADX+DMI":"💪 ADX+DMI",
+    "아룬 오실레이터":"🔄 아룬",
+    "켈트너 채널":"📐 켈트너",
+    "OBV":"📦 OBV",
+    "MFI 자금흐름":"💰 MFI",
+    "차이킨 오실레이터":"🏛 차이킨",
+  };
 
-  var html='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">';
+  var html='';
+
+  // ── 헤더 ──
+  html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">';
   html+='<div><div style="font-size:20px;font-weight:800;">'+(s.name||s.code)+'</div>';
   html+='<div style="font-size:12px;color:var(--muted);">종목코드: '+s.code+'</div></div>';
   html+='<div class="signal-grade grade-'+grade+'">'+grade+'</div></div>';
 
-  // 등급 설명
-  html+='<div style="background:rgba(255,61,143,0.08);border:1px solid rgba(255,61,143,0.2);border-radius:8px;padding:10px;margin-bottom:12px;">';
-  html+='<div style="font-size:13px;font-weight:700;color:var(--accent);">'+label+'</div>';
-  html+='<div style="font-size:12px;color:var(--muted);margin-top:4px;">'+(GRADE_DESC[grade]||"")+'</div>';
-  html+='</div>';
-
-  // 진입 근거 설명
-  html+='<div style="font-size:12px;color:var(--accent2);font-weight:700;margin-bottom:8px;">📋 진입 근거</div>';
-  html+='<div style="background:var(--card);border-radius:8px;padding:12px;margin-bottom:12px;">';
-  html+='<div style="font-size:13px;color:var(--text);line-height:1.8;">'+(SIG_DESC[s.signal_type]||s.signal_type||"-")+'</div>';
-  html+='</div>';
-
-  // 상세 지표
-  html+='<div style="font-size:12px;color:var(--accent2);font-weight:700;margin-bottom:8px;">📊 상세 지표</div>';
-
-  var rows=[
-    ["추세 변화", _trendKor(s.trend)+" → "+_trendKor(s.trend_c), "전날 대비 오늘 추세 변화"],
-    ["역시계곡선(CCW)", CCW_DESC[s.ccw]||s.ccw||"-", "주가-거래량 관계로 시장 국면을 파악하는 지표"],
-    ["MACD 히스토그램", s.hist_up?"📈 증가 중 (매수 모멘텀 강화)":"📉 감소 중 (모멘텀 약화)", "매수/매도 모멘텀 강도"],
-    ["기관 순매수", s.inst_buy?"✅ 최근 매수 중":"❌ 매수 없음", "기관투자자(펀드·보험 등)가 순매수 중인지 여부"],
-  ];
-
-  if(s.all_signals&&s.all_signals.length>1){
-    rows.push(["복수 신호", s.all_signals.map(function(k){return SIG_LABELS[k]||k;}).join("<br>"), "여러 신호가 동시에 발생 — 신뢰도 높음"]);
+  // ── 현재가 / 60일 종이격 ──
+  if(s.cur_price&&s.cur_price>0){
+    html+='<div style="display:flex;gap:12px;margin-bottom:12px;">';
+    html+='<div style="flex:1;background:var(--card);border-radius:8px;padding:10px;text-align:center;">';
+    html+='<div style="font-size:11px;color:var(--muted);">현재가</div>';
+    html+='<div style="font-size:18px;font-weight:800;">'+s.cur_price.toLocaleString()+'원</div></div>';
+    if(s.gap_60d!==undefined){
+      var gClr=s.gap_60d>=0?"var(--green)":"var(--red)";
+      html+='<div style="flex:1;background:var(--card);border-radius:8px;padding:10px;text-align:center;">';
+      html+='<div style="font-size:11px;color:var(--muted);">60일 종이격</div>';
+      html+='<div style="font-size:16px;font-weight:700;color:'+gClr+';">'+(s.gap_60d>=0?"+":"")+s.gap_60d.toLocaleString()+'원</div></div>';
+    }
+    html+='</div>';
   }
 
-  rows.forEach(function(row){
-    html+='<div style="padding:8px 0;border-bottom:1px solid var(--border);">';
-    html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;">';
-    html+='<div style="font-size:12px;color:var(--muted);min-width:100px;">'+row[0]+'</div>';
-    html+='<div style="font-size:13px;font-weight:600;text-align:right;flex:1;">'+row[1]+'</div></div>';
-    html+='<div style="font-size:11px;color:var(--muted);margin-top:2px;">'+row[2]+'</div>';
+  // ── 신호 설명 ──
+  html+='<div style="background:rgba(255,61,143,0.08);border:1px solid rgba(255,61,143,0.2);border-radius:8px;padding:12px;margin-bottom:12px;">';
+  html+='<div style="font-size:15px;font-weight:800;color:var(--accent);">'+label+'</div>';
+  html+='<div style="font-size:13px;color:var(--muted);margin-top:6px;">'+(GRADE_DESC[grade]||"")+'</div>';
+  html+='</div>';
+
+  // ── 진입 근거 ──
+  html+='<div style="font-size:13px;color:var(--accent2);font-weight:700;margin-bottom:8px;">📋 진입 근거</div>';
+  html+='<div style="background:var(--card);border-radius:8px;padding:12px;margin-bottom:14px;">';
+  html+='<div style="font-size:14px;color:var(--text);line-height:1.8;">'+(SIG_DESC[s.signal_type]||s.signal_type||"-")+'</div>';
+  html+='</div>';
+
+  // ── 월봉/주봉/일봉 13점 추세 (압축 + 클릭 시 세부) ──
+  var tfs=[
+    {label:"📅 월봉",tf:s.trend_month},
+    {label:"📆 주봉",tf:s.trend_week},
+    {label:"📊 일봉",tf:s.trend_day},
+  ];
+  html+='<div style="font-size:13px;color:var(--accent2);font-weight:700;margin-bottom:8px;">📈 추세 분석 (13점 만점)</div>';
+  html+='<div style="display:flex;gap:8px;margin-bottom:14px;" id="trend-bars">';
+  tfs.forEach(function(t,i){
+    var tf=t.tf; if(!tf) return;
+    var sc=tf.score_num||0; var mx=tf.score_max||13;
+    var pct=Math.round(sc/mx*100);
+    var clr=pct>=70?"var(--green)":pct>=40?"var(--gold)":"var(--red)";
+    html+='<div onclick="toggleTrendDetail('+i+')" style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px;cursor:pointer;text-align:center;">';
+    html+='<div style="font-size:12px;color:var(--muted);margin-bottom:4px;">'+t.label+'</div>';
+    html+='<div style="font-size:20px;font-weight:900;color:'+clr+';">'+sc+'<span style="font-size:12px;color:var(--muted);">/'+mx+'</span></div>';
+    // 점수 바
+    html+='<div style="background:var(--border);border-radius:4px;height:4px;margin-top:6px;">';
+    html+='<div style="background:'+clr+';width:'+pct+'%;height:4px;border-radius:4px;"></div></div>';
+    html+='<div style="font-size:10px;color:var(--muted);margin-top:4px;">눌러서 상세보기</div>';
     html+='</div>';
   });
   html+='</div>';
 
-  // 기관순매수 안내
+  // 세부 추세 패널 (숨겨진 상태)
+  tfs.forEach(function(t,i){
+    var tf=t.tf; if(!tf||!tf.indicators||!tf.indicators.length) return;
+    html+='<div id="trend-detail-'+i+'" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;">';
+    html+='<div style="font-size:13px;font-weight:800;margin-bottom:10px;">'+t.label+' 지표별 상세 ('+tf.score_num+'/'+tf.score_max+'점)</div>';
+    tf.indicators.forEach(function(ind){
+      var nm=TF_IND_NAME[ind.name]||ind.name;
+      var sc=ind.score||0; var mx=ind.max||1;
+      var clr=sc>0?"var(--green)":"var(--red)";
+      var bar=""; for(var b=0;b<mx;b++){var bc=b<sc?"var(--green)":"var(--border)";bar+='<span style="color:'+bc+'">●</span>';}
+      html+='<div style="padding:8px 0;border-bottom:1px solid var(--border);">';
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;">';
+      html+='<div style="font-size:13px;font-weight:700;">'+nm+'</div>';
+      html+='<div style="font-size:14px;font-weight:800;color:'+clr+';">'+sc+'/'+mx+'점 '+bar+'</div></div>';
+      html+='<div style="font-size:12px;color:var(--muted);margin-top:3px;">'+ind.display+'</div>';
+      html+='</div>';
+    });
+    html+='</div>';
+  });
+
+  // ── CCW + MACD + 기관 ──
+  html+='<div style="font-size:13px;color:var(--accent2);font-weight:700;margin-bottom:8px;">📌 상세 지표</div>';
+  var rows=[
+    ["역시계곡선(CCW)", CCW_DESC[s.ccw]||s.ccw||"-", "주가-거래량 관계로 시장 국면 파악"],
+    ["MACD 히스토그램", s.hist_up?"📈 증가 중 (매수 모멘텀 강화)":"📉 감소 중", "매수/매도 모멘텀 강도"],
+    ["기관 순매수", s.inst_buy?"✅ 최근 매수 중":"❌ 매수 없음", "기관투자자 순매수 여부"],
+  ];
+  if(s.all_signals&&s.all_signals.length>1){
+    rows.push(["복수 신호", s.all_signals.map(function(k){return SIG_LABELS[k]||k;}).join("<br>"), "여러 신호 동시 발생 — 신뢰도 높음"]);
+  }
+  rows.forEach(function(row){
+    html+='<div style="padding:10px 0;border-bottom:1px solid var(--border);">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;">';
+    html+='<div style="font-size:13px;color:var(--muted);min-width:110px;">'+row[0]+'</div>';
+    html+='<div style="font-size:14px;font-weight:700;text-align:right;flex:1;">'+row[1]+'</div></div>';
+    html+='<div style="font-size:11px;color:var(--muted);margin-top:2px;">'+row[2]+'</div>';
+    html+='</div>';
+  });
+
+  // 기관 안내
   if(!s.inst_buy){
-    html+='<div style="background:rgba(248,81,73,0.06);border:1px solid rgba(248,81,73,0.2);border-radius:8px;padding:10px;margin-bottom:12px;">';
-    html+='<div style="font-size:12px;color:var(--muted);">ℹ️ 기관순매수 데이터는 전일 기준으로 반영됩니다. 실시간이 아닌 전날 집계 기준입니다.</div>';
+    html+='<div style="background:rgba(248,81,73,0.06);border:1px solid rgba(248,81,73,0.2);border-radius:8px;padding:10px;margin-top:12px;">';
+    html+='<div style="font-size:12px;color:var(--muted);">ℹ️ 기관순매수 데이터는 전일 기준으로 반영됩니다.</div>';
     html+='</div>';
   }
 
   document.getElementById("modal-body").innerHTML=html;
   document.getElementById("modal").classList.add("open");
+}
+
+function toggleTrendDetail(i){
+  var el=document.getElementById("trend-detail-"+i);
+  if(!el)return;
+  el.style.display=el.style.display==="none"?"block":"none";
 }
 
 // 모달
