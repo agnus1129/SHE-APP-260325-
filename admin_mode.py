@@ -147,13 +147,13 @@ class AnalysisWorker(QThread):
         from data.db_manager import get_daily
 
         # IndicatorEngine 초기화
-        _ind_dir  = os.path.join(os.path.dirname(os.path.dirname(__file__)), "indicators")
-        _map_path = os.path.join(_ind_dir, "indicators_map.json")
+        _she_root = os.path.dirname(os.path.dirname(__file__))
+        _map_path = os.path.join(_she_root, "indicators_config", "indicators_map.json")
         _engine   = None
         _engine_err = ""
         try:
-            if _ind_dir not in sys.path:
-                sys.path.insert(0, _ind_dir)
+            if _she_root not in sys.path:
+                sys.path.insert(0, _she_root)
             from engine import IndicatorEngine
             if os.path.exists(_map_path):
                 _engine = IndicatorEngine(config_path=_map_path)
@@ -188,8 +188,44 @@ class AnalysisWorker(QThread):
                     except:
                         price = 0
 
-                # 일봉 캔들 로드 (premium_data.db, REST 기반)
+                # 일봉 캔들 로드 (premium_data.db → ka10086 fallback)
                 rows = get_daily(code, limit=300)
+                if not rows or len(rows) < 60:
+                    try:
+                        from core.kiwoom_rest import kiwoom as _kw
+                        import os as _os2, sqlite3 as _sq2
+                        _raw = _kw.get_daily_candles(code)
+                        if _raw and len(_raw) >= 10:
+                            _rows_new = []
+                            for _r in _raw:
+                                _dt = str(_r.get("stk_dt","") or _r.get("date",""))
+                                if not _dt: continue
+                                _rows_new.append({
+                                    "date":   _dt,
+                                    "open":   abs(int(_r.get("opn_prc",0) or _r.get("open_pric",0) or 0)),
+                                    "high":   abs(int(_r.get("high_prc",0) or _r.get("high_pric",0) or 0)),
+                                    "low":    abs(int(_r.get("low_prc", 0) or _r.get("low_pric", 0) or 0)),
+                                    "close":  abs(int(_r.get("cur_prc", 0) or _r.get("close_pric",0) or 0)),
+                                    "volume": abs(int(_r.get("trde_qty",0) or 0)),
+                                })
+                            if _rows_new:
+                                # premium_data.db 저장
+                                try:
+                                    _pdb = _os2.path.join(_os2.path.dirname(_os2.path.dirname(__file__)), "data", "premium_data.db")
+                                    _conn = _sq2.connect(_pdb, timeout=10)
+                                    _conn.execute("""CREATE TABLE IF NOT EXISTS daily_candles (
+                                        code TEXT, date TEXT, open INTEGER, high INTEGER,
+                                        low INTEGER, close INTEGER, volume INTEGER,
+                                        PRIMARY KEY (code, date))""")
+                                    _conn.executemany(
+                                        "INSERT OR REPLACE INTO daily_candles (code,date,open,high,low,close,volume) VALUES (?,?,?,?,?,?,?)",
+                                        [(code,r["date"],r["open"],r["high"],r["low"],r["close"],r["volume"]) for r in _rows_new]
+                                    )
+                                    _conn.commit()
+                                    _conn.close()
+                                except: pass
+                                rows = _rows_new
+                    except: pass
                 candles = list(reversed([{
                     "open":   r["open"],  "high": r["high"],
                     "low":    r["low"],   "close": r["close"],
@@ -776,8 +812,59 @@ class ConsignTab(StockTab):
             if not holders:
                 QMessageBox.information(self, "알림", "의뢰관리 종목이 없습니다.")
                 return
-            send_holder_report("의뢰관리", holders)
-            QMessageBox.information(self, "전송 완료", f"텔레그램 보고 완료: {len(holders)}명")
+
+            # 보유자 선택 다이얼로그
+            from PyQt5.QtWidgets import QDialog, QVBoxLayout, QCheckBox, QDialogButtonBox, QLabel, QScrollArea, QWidget
+            dlg = QDialog(self)
+            dlg.setWindowTitle("텔레그램 출력 — 보유자 선택")
+            dlg.setMinimumWidth(300)
+            vlay = QVBoxLayout(dlg)
+            vlay.addWidget(QLabel("출력할 보유자를 선택하세요:"))
+
+            # 스크롤 영역
+            scroll = QScrollArea()
+            scroll.setWidgetResizable(True)
+            inner = QWidget()
+            inner_lay = QVBoxLayout(inner)
+
+            # 전체 선택 체크박스
+            chk_all = QCheckBox("── 전체 선택 ──")
+            chk_all.setChecked(True)
+            inner_lay.addWidget(chk_all)
+
+            # 보유자별 체크박스
+            chk_map = {}
+            for holder_name in sorted(holders.keys()):
+                cnt = len(holders[holder_name])
+                chk = QCheckBox(f"{holder_name}  ({cnt}종목)")
+                chk.setChecked(True)
+                inner_lay.addWidget(chk)
+                chk_map[holder_name] = chk
+
+            def _toggle_all(state):
+                for c in chk_map.values():
+                    c.setChecked(bool(state))
+            chk_all.stateChanged.connect(_toggle_all)
+
+            scroll.setWidget(inner)
+            vlay.addWidget(scroll)
+
+            btns = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+            btns.accepted.connect(dlg.accept)
+            btns.rejected.connect(dlg.reject)
+            vlay.addWidget(btns)
+
+            if dlg.exec_() != QDialog.Accepted:
+                return
+
+            # 선택된 보유자만 필터
+            selected = {h: v for h, v in holders.items() if chk_map[h].isChecked()}
+            if not selected:
+                QMessageBox.information(self, "알림", "선택된 보유자가 없습니다.")
+                return
+
+            send_holder_report("의뢰관리", selected)
+            QMessageBox.information(self, "전송 완료", f"텔레그램 보고 완료: {len(selected)}명")
         except Exception as e:
             QMessageBox.warning(self, "오류", f"전송 실패: {e}")
 
@@ -867,8 +954,20 @@ class UserTab(QWidget):
         bot = QHBoxLayout()
         btn_ref = QPushButton("🔄 새로고침")
         btn_ref.clicked.connect(self.refresh)
+        btn_push = QPushButton("📤 보유종목 Push")
+        btn_push.setProperty("class","green")
+        btn_push.clicked.connect(self._manual_push)
+        btn_lookup = QPushButton("🔍 조회요청 처리")
+        btn_lookup.setProperty("class","yellow")
+        btn_lookup.clicked.connect(self._manual_lookup)
+        btn_signal = QPushButton("⚡ 추천종목 Push")
+        btn_signal.setProperty("class","green")
+        btn_signal.clicked.connect(self._manual_signal_push)
         self.status_lbl = QLabel("총 0명")
         bot.addWidget(btn_ref)
+        bot.addWidget(btn_push)
+        bot.addWidget(btn_lookup)
+        bot.addWidget(btn_signal)
         bot.addStretch()
         bot.addWidget(self.status_lbl)
         layout.addLayout(bot)
@@ -925,9 +1024,48 @@ class UserTab(QWidget):
             btn_layout.addWidget(btn_del)
             self.table.setCellWidget(r, 4, btn_frame)
 
-        self.table.verticalHeader().setDefaultSectionSize(36)
+        self.table.verticalHeader().setDefaultSectionSize(52)
         self.status_lbl.setText(f"총 {len(self._users)}명")
 
+
+    def _manual_push(self):
+        """보유종목 수동 Push"""
+        try:
+            from data_pusher import pusher
+            pusher.push_holdings()
+            QMessageBox.information(self, "Push 완료", "보유종목을 Railway 서버에 전송했습니다.")
+        except Exception as e:
+            QMessageBox.warning(self, "오류", f"Push 실패: {e}")
+
+    def _manual_lookup(self):
+        """조회요청 수동 처리 (분석 → Railway Push)"""
+        try:
+            from data_pusher import pusher
+            pusher.process_lookup_queue()
+            QMessageBox.information(self, "처리 완료", "조회요청 분석 및 전송이 완료됐습니다.")
+        except Exception as e:
+            QMessageBox.warning(self, "오류", f"처리 실패: {e}")
+
+    def _manual_signal_push(self):
+        """추천종목 수동 Push — SHE 신호 스캔 후 Railway 전송"""
+        try:
+            from data_pusher import pusher
+            from strategy.signal_engine import signal_eng
+            from data.universe_builder import get_universe_codes
+            reply = QMessageBox.question(
+                self, "추천종목 Push",
+                "신호 스캔 후 Railway에 전송합니다.\n(수백 종목 분석 — 1~2분 소요)\n진행할까요?",
+                QMessageBox.Yes | QMessageBox.No
+            )
+            if reply != QMessageBox.Yes:
+                return
+            codes = get_universe_codes()
+            signal_eng.scan_all(codes)
+            signals = list(signal_eng.get_today_signals().values())
+            pusher.run_signal_push(signals)
+            QMessageBox.information(self, "완료", f"추천종목 {len(signals)}건을 전송했습니다.")
+        except Exception as e:
+            QMessageBox.warning(self, "오류", f"Push 실패: {e}")
 
     def _edit_user(self, user: dict):
         """전화번호 수정 다이얼로그"""
