@@ -313,7 +313,8 @@ function renderLookup(code,name,r){
   tfs.forEach(function(tf,idx){
     if(!tf||!tf.indicators||!tf.indicators.length){h+='<div id="lt-'+idx+'" style="display:none;"></div>';return;}
     h+='<div id="lt-'+idx+'" style="display:none;background:var(--card);border:1px solid var(--accent);border-radius:10px;padding:14px;margin-bottom:8px;">';
-    h+='<div style="font-size:14px;font-weight:800;margin-bottom:10px;">'+TF_LABELS[idx]+' 세부 지표 ('+tf.score_num+'/'+tf.score_max+'점)</div>';
+    var mx2=tf.score_max||13;
+    h+='<div style="font-size:14px;font-weight:800;margin-bottom:10px;">'+TF_LABELS[idx]+' 세부 지표 ('+tf.score_num+'/'+mx2+'점)</div>';
     tf.indicators.forEach(function(ind){
       var sc=ind.score||0; var mx=ind.max||1;
       var clr=sc>0?"var(--green)":"var(--red)";
@@ -705,7 +706,7 @@ function showSignal(key){
   tfs.forEach(function(t,i){
     var tf=t.tf; if(!tf||!tf.indicators||!tf.indicators.length) return;
     html+='<div id="trend-detail-'+i+'" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;">';
-    html+='<div style="font-size:13px;font-weight:800;margin-bottom:10px;">'+t.label+' 지표별 상세 ('+tf.score_num+'/'+tf.score_max+'점)</div>';
+    html+='<div style="font-size:13px;font-weight:800;margin-bottom:10px;">'+t.label+' 지표별 상세 ('+tf.score_num+'/'+(tf.score_max||13)+'점)</div>';
     tf.indicators.forEach(function(ind){
       var nm=TF_IND_NAME[ind.name]||ind.name;
       var sc=ind.score||0; var mx=ind.max||1;
