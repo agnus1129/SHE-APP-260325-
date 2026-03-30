@@ -17,7 +17,7 @@
   --gold:#e3b341; --text:#f2ecf8; --muted:#9080a8; --radius:14px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;min-height:100vh;max-width:480px;margin:0 auto;font-size:15px;line-height:1.75;}
+body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;min-height:100vh;max-width:480px;margin:0 auto;font-size:17px;line-height:1.8;}
 #login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px 24px;background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(255,61,143,0.13) 0%,transparent 70%),var(--bg);position:relative;overflow:hidden;}
 #login-screen::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,61,143,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,61,143,0.07) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;}
 .login-graphic{position:relative;width:200px;height:120px;margin-bottom:28px;flex-shrink:0;}
@@ -288,34 +288,41 @@ function renderLookup(code,name,r){
   h+='<span class="'+scClr(total,totalMax)+'" style="font-size:22px;font-weight:900;">'+total+' / '+totalMax+'점</span>';
   h+='</div></div>';
 
-  // ── 봉별 추세 (월봉/주봉/일봉) ──
-  var IND_NAMES={
-    "이동평균 정배열": "📈 이동평균선 — 단기>중기>장기 (상승 배열)",
-    "MACD 히스트":    "📊 MACD 히스토그램 — 매수 모멘텀 증가 여부",
-    "RSI":            "⚡ RSI — 50 이상이면 매수세 우세",
-    "ADX":            "💪 ADX — 25 이상이면 추세 강도 확인",
-    "거래량 이평":    "📦 거래량 — 평균 대비 거래량 증가 여부"
-  };
-  var TF_LABELS=["📅 월봉 추세 (장기)","📆 주봉 추세 (중기)","📊 일봉 추세 (단기)"];
+  // ── 봉별 추세 (월봉/주봉/일봉) — 요약 + 버튼 클릭 시 세부 ──
+  var TF_LABELS=["📅 월봉 (장기)","📆 주봉 (중기)","📊 일봉 (단기)"];
   var tfs=[r.trend_month,r.trend_week,r.trend_day];
-  tfs.forEach(function(tf,i){
-    if(!tf||!tf.indicators||!tf.indicators.length)return;
-    var sc=tf.score_num||0;
-    var scStr=tf.score||"0/5";
-    h+='<div class="card">';
-    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">';
-    h+='<div style="font-size:14px;font-weight:800;">'+TF_LABELS[i]+'</div>';
-    h+='<div class="'+scClr(sc,5)+'" style="font-size:18px;font-weight:900;">'+scStr+'</div></div>';
+
+  h+='<div style="font-size:14px;font-weight:800;color:var(--accent2);margin-bottom:10px;">📈 추세 분석 (13점 만점)</div>';
+  h+='<div style="display:flex;gap:8px;margin-bottom:4px;">';
+  tfs.forEach(function(tf,idx){
+    if(!tf){h+='<div style="flex:1;background:var(--card);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:12px;color:var(--muted);">'+TF_LABELS[idx]+'</div><div style="color:var(--muted);font-size:18px;">—</div></div>';return;}
+    var sc=tf.score_num||0; var mx=tf.score_max||13;
+    var pct=Math.round(sc/mx*100);
+    var clr=pct>=70?"var(--green)":pct>=40?"var(--gold)":"var(--red)";
+    h+='<div onclick="toggleLookupTrend('+idx+')" style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px;cursor:pointer;text-align:center;transition:border-color 0.2s;" onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\'">';
+    h+='<div style="font-size:12px;color:var(--muted);margin-bottom:4px;">'+TF_LABELS[idx]+'</div>';
+    h+='<div style="font-size:22px;font-weight:900;color:'+clr+';">'+sc+'<span style="font-size:13px;color:var(--muted);">/'+mx+'</span></div>';
+    h+='<div style="background:var(--border);border-radius:4px;height:5px;margin-top:6px;">';
+    h+='<div style="background:'+clr+';width:'+pct+'%;height:5px;border-radius:4px;"></div></div>';
+    h+='<div style="font-size:11px;color:var(--accent);margin-top:5px;">▼ 상세보기</div>';
+    h+='</div>';
+  });
+  h+='</div>';
+
+  // 세부 패널 (기본 숨김)
+  tfs.forEach(function(tf,idx){
+    if(!tf||!tf.indicators||!tf.indicators.length){h+='<div id="lt-'+idx+'" style="display:none;"></div>';return;}
+    h+='<div id="lt-'+idx+'" style="display:none;background:var(--card);border:1px solid var(--accent);border-radius:10px;padding:14px;margin-bottom:8px;">';
+    h+='<div style="font-size:14px;font-weight:800;margin-bottom:10px;">'+TF_LABELS[idx]+' 세부 지표 ('+tf.score_num+'/'+tf.score_max+'점)</div>';
     tf.indicators.forEach(function(ind){
-      var desc=IND_NAMES[ind.name]||ind.name;
-      var okStr=ind.ok?'<span class="pos-text">✅ 좋음</span>':'<span class="neg-text">❌ 미충족</span>';
-      h+='<div style="padding:8px 0;border-bottom:1px solid var(--border);">';
+      var sc=ind.score||0; var mx=ind.max||1;
+      var clr=sc>0?"var(--green)":"var(--red)";
+      var bar=""; for(var b=0;b<mx;b++){bar+='<span style="color:'+(b<sc?"var(--green)":"var(--border)");bar+='">●</span>';}
+      h+='<div style="padding:9px 0;border-bottom:1px solid var(--border);">';
       h+='<div style="display:flex;justify-content:space-between;align-items:center;">';
-      h+='<div style="font-size:12px;color:var(--muted);flex:1;">'+desc+'</div>';
-      h+='<div style="font-size:13px;font-weight:600;margin-left:8px;">'+okStr+'</div></div>';
-      if(ind.display&&ind.display!=="✅"&&ind.display!=="❌"){
-        h+='<div style="font-size:11px;color:var(--muted);margin-top:2px;">수치: '+ind.display+'</div>';
-      }
+      h+='<div style="font-size:14px;font-weight:700;">'+ind.name+'</div>';
+      h+='<div style="font-size:13px;font-weight:800;color:'+clr+';">'+sc+'/'+mx+' '+bar+'</div></div>';
+      if(ind.display)h+='<div style="font-size:12px;color:var(--muted);margin-top:3px;">'+ind.display+'</div>';
       h+='</div>';
     });
     h+='</div>';
@@ -327,49 +334,42 @@ function renderLookup(code,name,r){
   var greenSigs=inds.green_signals||[];
   var redSigs=inds.red_signals||[];
 
+  function indCard(s, borderClr, titleClr, bgClr){
+    var meta=IND_META[s]||{};
+    var nm=meta.name||s;
+    var cat=meta.cat||"";
+    var desc=meta.desc||"";
+    var cond=meta.cond||"";
+    var r='<div style="background:'+bgClr+';border:1px solid '+borderClr+';border-radius:10px;padding:14px;margin-bottom:8px;">';
+    if(cat)r+='<div style="font-size:11px;color:'+borderClr+';font-weight:700;margin-bottom:5px;letter-spacing:1px;">'+cat.toUpperCase()+'</div>';
+    r+='<div style="color:'+titleClr+';font-size:17px;font-weight:800;margin-bottom:6px;">'+nm+'</div>';
+    if(desc)r+='<div style="color:var(--text);font-size:14px;line-height:1.75;margin-bottom:4px;">'+desc+'</div>';
+    if(cond)r+='<div style="font-size:12px;color:var(--muted);margin-top:4px;">📌 조건: '+cond+'</div>';
+    r+='</div>';
+    return r;
+  }
+
   if(autoSigs.length||greenSigs.length||redSigs.length){
     h+='<div class="card">';
-    h+='<div style="font-size:14px;font-weight:800;margin-bottom:4px;">🔬 74개 지표 분석 결과</div>';
-    h+='<div style="font-size:11px;color:var(--muted);margin-bottom:14px;">자동매매 시그널은 SHE 시스템이 내일 매수 후보로 선정한 신호입니다</div>';
-
+    h+='<div style="font-size:16px;font-weight:800;margin-bottom:4px;">🔬 74개 지표 분석 결과</div>';
+    h+='<div style="font-size:13px;color:var(--muted);margin-bottom:14px;">자동매매 시그널은 SHE 시스템이 내일 매수 후보로 선정한 신호입니다</div>';
     if(autoSigs.length){
-      h+='<div style="margin-bottom:14px;">';
-      h+='<div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:6px;">⚡ 자동매매 진입 신호 ('+autoSigs.length+'개) — SHE가 매수 후보로 선정</div>';
-      autoSigs.forEach(function(s){
-        var desc=IND_DESC[s]||"";
-        h+='<div style="background:rgba(227,179,65,0.08);border:1px solid rgba(227,179,65,0.25);border-radius:10px;padding:14px;margin-bottom:8px;">';
-        h+='<div style="color:var(--gold);font-size:16px;font-weight:800;margin-bottom:4px;">'+s+'</div>';
-        if(desc)h+='<div style="color:rgba(227,179,65,0.75);font-size:14px;line-height:1.7;">'+desc+'</div>';
-        h+='</div>';
-      });
+      h+='<div style="margin-bottom:16px;">';
+      h+='<div style="font-size:14px;font-weight:700;color:var(--gold);margin-bottom:8px;">⚡ 자동매매 진입 신호 ('+autoSigs.length+'개) — SHE 매수 후보 선정</div>';
+      autoSigs.forEach(function(s){h+=indCard(s,"rgba(227,179,65,0.6)","var(--gold)","rgba(227,179,65,0.07)");});
       h+='</div>';
     }
     if(greenSigs.length){
-      h+='<div style="margin-bottom:14px;">';
-      h+='<div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px;">✅ 긍정 신호 ('+greenSigs.length+'개) — 매수에 유리한 조건</div>';
-      greenSigs.forEach(function(s){
-        var desc=IND_DESC[s]||"";
-        h+='<div style="background:rgba(63,185,80,0.08);border:1px solid rgba(63,185,80,0.25);border-radius:10px;padding:14px;margin-bottom:8px;">';
-        h+='<div style="color:var(--green);font-size:16px;font-weight:800;margin-bottom:4px;">'+s+'</div>';
-        if(desc)h+='<div style="color:rgba(63,185,80,0.75);font-size:14px;line-height:1.7;">'+desc+'</div>';
-        h+='</div>';
-      });
+      h+='<div style="margin-bottom:16px;">';
+      h+='<div style="font-size:14px;font-weight:700;color:var(--green);margin-bottom:8px;">✅ 긍정 신호 ('+greenSigs.length+'개) — 매수에 유리한 조건</div>';
+      greenSigs.forEach(function(s){h+=indCard(s,"rgba(63,185,80,0.5)","var(--green)","rgba(63,185,80,0.07)");});
       h+='</div>';
     }
     if(redSigs.length){
       h+='<div>';
-      h+='<div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px;">🚫 경고 신호 ('+redSigs.length+'개) — 주의가 필요한 조건</div>';
-      redSigs.forEach(function(s){
-        var desc=IND_DESC[s]||"";
-        h+='<div style="background:rgba(248,81,73,0.08);border:1px solid rgba(248,81,73,0.25);border-radius:10px;padding:14px;margin-bottom:8px;">';
-        h+='<div style="color:var(--red);font-size:16px;font-weight:800;margin-bottom:4px;">'+s+'</div>';
-        if(desc)h+='<div style="color:rgba(248,81,73,0.75);font-size:14px;line-height:1.7;">'+desc+'</div>';
-        h+='</div>';
-      });
+      h+='<div style="font-size:14px;font-weight:700;color:var(--red);margin-bottom:8px;">🚫 경고 신호 ('+redSigs.length+'개) — 주의가 필요한 조건</div>';
+      redSigs.forEach(function(s){h+=indCard(s,"rgba(248,81,73,0.5)","var(--red)","rgba(248,81,73,0.07)");});
       h+='</div>';
-    }
-    if(!autoSigs.length&&!greenSigs.length&&!redSigs.length){
-      h+='<div style="text-align:center;color:var(--muted);padding:12px;">활성 신호 없음</div>';
     }
     h+='</div>';
   }
@@ -480,92 +480,93 @@ function loadSignals(){
     .catch(function(){spin.innerHTML="";area.innerHTML='<div class="empty-msg">서버 연결 실패.</div>';});
 }
 
-var IND_DESC={
+var IND_META={
   // ── 이동평균선 ──
-  "이동평균선_60일_종이격_상승_1":   "현재 주가가 60일 전보다 높음. 중장기 상승 흐름 유지 중.",
-  "이동평균선_60일_종이격_하락_2":   "현재 주가가 60일 전보다 낮음. 중장기 하락 흐름 주의.",
-  "이동평균선_60일선_눌림_3":        "60일선 위에서 캔들이 눌림. 이평선 지지 후 반등 기대 구간.",
+  "60일 종이격 상승 추세 1":{name:"60일 종이격 상승",cat:"이동평균선",desc:"현재 주가가 60일 전보다 높음. 중장기 상승 흐름 유지 중.",cond:"당일 종가 > 60일전 종가"},
+  "60일 종이격 하락 추세 2":{name:"60일 종이격 하락",cat:"이동평균선",desc:"현재 주가가 60일 전보다 낮음. 중장기 하락 흐름 주의.",cond:"당일 종가 < 60일전 종가"},
+  "60일 종이격 상승 추세 3":{name:"60일선 눌림",cat:"이동평균선",desc:"전일 60이평 위에 있다가 당일 60이평 아래로 내려간 경우 — 이평선 지지 후 반등 기대 구간.",cond:"전봉>60MA & 당봉≤60MA"},
   // ── 일목균형표 전환선 ──
-  "일목균형표_전환선_200점_4":       "오늘과 8일전 전환선이 동시 상승. 단기 추세 강한 상승 확인.",
-  "일목균형표_전환선_100점_5":       "오늘 전환선만 상승. 단기 상승 모멘텀 발생.",
-  "일목균형표_전환선_고점주의_6":    "8일전은 상승했지만 오늘 전환선 정지. 단기 상승 모멘텀 둔화 주의.",
-  "일목균형표_전환선_반달형_7":      "전환선이 반달 모양으로 신고점 형성. 강한 상승 전환 신호.",
+  "200점 전환선 전환선 상승 4":{name:"전환선 200점 (강한 상승)",cat:"일목균형표",desc:"오늘과 9일전 전환선이 동시 상승. 단기 추세 강한 상승 확인.",cond:"직접 설정"},
+  "100점 전환선 전환선 상승 5":{name:"전환선 100점",cat:"일목균형표",desc:"오늘 전환선만 상승. 단기 상승 모멘텀 발생.",cond:"직접 설정"},
+  "고점주의 전환선 전환선 상승 6":{name:"전환선 고점주의",cat:"일목균형표",desc:"9일전은 상승했지만 오늘 전환선 정지. 단기 상승 모멘텀 둔화 주의.",cond:"직접 설정"},
+  "반달형 전환선 전환선 상승 7":{name:"전환선 반달형 (신고점)",cat:"일목균형표",desc:"전환선이 반달 모양으로 신고점 형성. 강한 상승 전환 신호.",cond:"직접 설정"},
   // ── 일목균형표 기준선 ──
-  "일목균형표_기준선_200점_8":       "오늘과 26일전 기준선이 동시 상승. 중기 추세 강한 상승 확인.",
-  "일목균형표_기준선_100점_9":       "오늘 기준선만 상승. 중기 상승 모멘텀 발생.",
-  "일목균형표_기준선_고점주의_10":   "26일전은 상승했지만 오늘 기준선 정지. 중기 모멘텀 둔화 주의.",
-  "일목균형표_기준선과_스토캐스틱_11":"스토캐스틱 GC 또는 과열 + 기준선이 최저점. 바닥 반등 기대.",
-  "일목균형표_기준선_반달형_12":     "기준선이 반달 모양으로 신고점 형성. 중기 강한 상승 전환.",
+  "200점 기준선 기준선 상승 8":{name:"기준선 200점 (강한 상승)",cat:"일목균형표",desc:"오늘과 26일전 기준선이 동시 상승. 중기 추세 강한 상승 확인.",cond:"직접 설정"},
+  "100점 기준선 기준선 상승 9":{name:"기준선 100점",cat:"일목균형표",desc:"오늘 기준선만 상승. 중기 상승 모멘텀 발생.",cond:"직접 설정"},
+  "고점주의 기준선 기준선 상승 10":{name:"기준선 고점주의",cat:"일목균형표",desc:"26일전은 상승했지만 오늘 기준선 정지. 중기 모멘텀 둔화 주의.",cond:"직접 설정"},
+  "저점 기준선 기준선 하락 11":{name:"기준선과 스토캐스틱",cat:"일목균형표",desc:"스토캐스틱 GC 또는 과열 시점에서 오늘 기준선 값이 저점. 바닥 반등 기대.",cond:"직접 설정"},
+  "반달형 기준선 기준선 상승 12":{name:"기준선 반달형 (신고점)",cat:"일목균형표",desc:"기준선이 반달 모양으로 신고점 형성. 중기 강한 상승 전환.",cond:"27봉 최고가가 오늘 봉으로 이동"},
   // ── 일목균형표 기타 ──
-  "일목균형표_전기선_GC_13":         "전환선이 기준선을 상향 교차(골든크로스). 강력한 매수 신호.",
-  "일목균형표_전기선_DC_14":         "전환선이 기준선을 하향 교차(데드크로스). 매도/관망 경고.",
-  "일목균형표_구름_양운전환_15":     "구름이 음운에서 양운으로 전환. 중장기 상승 전환 신호.",
-  "일목균형표_구름_음운전환_16":     "구름이 양운에서 음운으로 전환. 중장기 하락 전환 경고.",
-  "일목균형표_캔들구름위양운_17":    "주가가 양운 위에 위치. 매우 강한 상승 포지션.",
-  "일목균형표_캔들구름안양운_18":    "주가가 양운 안에 위치. 구름 돌파 시도 구간.",
-  "일목균형표_캔들구름아래양운_19":  "양운이지만 주가가 구름 아래. 지지선 하향 이탈 — 역발상 반등 대기.",
-  "일목균형표_캔들구름위음운_20":    "음운이지만 주가가 구름 위. 저항 돌파 후 강세 전환.",
-  "일목균형표_캔들구름안음운_21":    "주가가 음운 안에서 저항받는 중. 돌파 여부 주시.",
-  "일목균형표_캔들구름아래음운_22":  "주가가 음운 아래. 강한 하락 추세 경고.",
-  "일목균형표_캔들전환선눌림목_23":  "전일 전환선 위에서 당일 전환선 아래로 이탈. 눌림목 반등 구간.",
-  "일목균형표_캔들기준선눌림좀_24":  "전일 기준선 위에서 당일 기준선 아래로 이탈. 기준선 지지 반등 기대.",
-  "일목균형표_후행스팬기준선터치_25":"후행스팬이 26일전 기준선에 1% 이내 접근 + 60일 종이격 양수. 지지 확인.",
-  "일목균형표_전기선신고가_26":      "전환선 GC 이후 신고가 달성. 추세 상승 가속.",
-  "일목균형표_기준선과볼륨오실레이터_27":"기준선 상승 + 거래량 오실레이터 양수. 수급 동반 상승.",
-  "일목균형표_기준선과선행스팬2상승_28":"기준선과 선행스팬B 동시 상승. 이중 강세 확인.",
-  "일목균형표_기준선과선행스팬2정지_29":"기준선과 선행스팬B 동시 정지. 추세 소강 — 주의.",
-  "일목균형표_캔들후행스팬60일선_30":"구름 위 + 60일선 터치 + 후행스팬 확인. 3중 지지 강세.",
+  "전기선 GC 전기선  13":{name:"전기선 골든크로스 (GC)",cat:"일목균형표",desc:"전환선이 기준선을 상향 교차(골든크로스). 강력한 매수 신호.",cond:"전환선이 기준선 상향 돌파"},
+  "전기선 DC 전기선  14":{name:"전기선 데드크로스 (DC)",cat:"일목균형표",desc:"전환선이 기준선을 하향 교차(데드크로스). 매도/관망 경고.",cond:"전환선이 기준선 하향 돌파"},
+  "구름 앞구름 15":{name:"구름 양운 전환",cat:"일목균형표",desc:"구름이 음운에서 양운으로 전환. 중장기 상승 전환 신호.",cond:"SpanA가 SpanB 상향 돌파"},
+  "구름 앞구름 16":{name:"구름 음운 전환",cat:"일목균형표",desc:"구름이 양운에서 음운으로 전환. 중장기 하락 전환 경고.",cond:"SpanA가 SpanB 하향 돌파"},
+  "캔들과 구름 내구름 17":{name:"캔들 구름 위 (양운)",cat:"일목균형표",desc:"앞구름이 양운이면서 종가가 구름 위. 매우 강한 상승 포지션.",cond:"양운 + 종가 > SpanA"},
+  "캔들과 구름 내구름 18":{name:"캔들 구름 안 (양운)",cat:"일목균형표",desc:"앞구름이 양운이면서 종가가 구름 안. 구름 돌파 시도 구간.",cond:"양운 + SpanB≤종가≤SpanA"},
+  "캔들과 구름 내구름 19":{name:"캔들 구름 아래 (양운)",cat:"일목균형표",desc:"양운이지만 종가가 구름 아래. 지지선 하향 이탈 — 역발상 반등 대기.",cond:"양운 + 종가 < SpanB"},
+  "캔들과 구름 내구름 20":{name:"캔들 구름 위 (음운)",cat:"일목균형표",desc:"음운이지만 종가가 구름 위. 저항 돌파 후 강세 전환.",cond:"음운 + 종가 > SpanB"},
+  "캔들과 구름 내구름 21":{name:"캔들 구름 안 (음운)",cat:"일목균형표",desc:"종가가 음운 안에서 저항받는 중. 돌파 여부 주시.",cond:"음운 + SpanA≤종가≤SpanB"},
+  "캔들과 구름 내구름 22":{name:"캔들 구름 아래 (음운)",cat:"일목균형표",desc:"종가가 음운 아래. 강한 하락 추세 경고.",cond:"음운 + 종가 < SpanA"},
+  "캔들과 전환선 전환선 하락 23":{name:"캔들 전환선 눌림목",cat:"일목균형표",desc:"전일 전환선 위에서 당일 전환선 아래로 이탈. 눌림목 반등 구간.",cond:"전봉>전환선 & 당봉≤전환선"},
+  "캔들과 전기선 전기선  24":{name:"캔들 기준선 눌림목",cat:"일목균형표",desc:"전일 기준선 위에서 당일 기준선 아래로 이탈. 기준선 지지 반등 기대.",cond:"전봉>기준선 & 당봉≤기준선"},
+  "후행스팬과 전기선 후행스팬과 전기선 25":{name:"후행스팬 기준선 터치",cat:"일목균형표",desc:"후행스팬이 기준선에 접근하면서 60일 종이격이 양수인 경우. 지지 확인.",cond:"직접 설정"},
+  "전기선과 신고가 전기선과 신고가 26":{name:"기준선과 볼륨오실레이터",cat:"일목균형표",desc:"기준선이 상승하면서 볼륨 오실레이터가 0선을 상향돌파. 수급 동반 상승.",cond:"기준선 상승 + VO > 0"},
+  "전기선과 VO 전기선과 VO 27":{name:"기준선과 선행스팬2 상승",cat:"일목균형표",desc:"기준선과 선행스팬B가 동시 상승. 이중 강세 확인.",cond:"기준선>SpanB + SpanB 상승"},
+  "기준선과 선행스팬2 기준선과 선행스팬2 28":{name:"기준선과 선행스팬2 상승",cat:"일목균형표",desc:"기준선과 선행스팬B가 동시 상승. 중장기 추세 이중 확인.",cond:"기준선>SpanB + SpanB 상승"},
+  "기준선과 선행스팬2 기준선과 선행스팬2 29":{name:"기준선과 선행스팬2 동시 정지",cat:"일목균형표",desc:"기준선과 선행스팬B가 동시 정지. 추세 소강 — 주의.",cond:"기준선>SpanB + SpanB 보합"},
+  "캔들과 후행스팬과 60일 이평 캔들과 후행스팬과 60일 이평 30":{name:"캔들·후행스팬·60일선 삼중저격",cat:"일목균형표",desc:"구름 위 + 60일선 터치 + 후행스팬 확인. 3중 지지 — 강세.",cond:"직접 설정"},
   // ── 이동평균 ──
-  "이동평균_5일이평선위_31":         "주가가 5일 이평선 위. 초단기 상승 흐름.",
-  "이동평균_5일이평선아래_32":       "주가가 5일선 아래 눌림. 역발상 반등 구간 (칼마 18.63).",
-  "이동평균_전환선10일이평선돌파_33":"전환선이 10일선을 상향 돌파. 단기 추세 상승 전환.",
-  "이동평균_전환선스토캐스틱10일이평선_34":"전환선 > 10일선 + 스토캐스틱 GC. 이중 매수 신호.",
-  "이동평균_10일신고가_35":          "최근 10일 기준 신고가 달성. 단기 강세 신호.",
-  "이동평균_20일신고가_36":          "최근 20일 기준 신고가. 중기 강세 확인.",
-  "이동평균_60일신고가_37":          "최근 60일 기준 신고가. 강한 중기 상승 추세.",
-  "이동평균_5일10일정배열_38":       "5일선 > 10일선 정배열. 단기 상승 흐름 유지.",
-  "이동평균_5일10일역배열_39":       "5일선 < 10일선 역배열. 역발상 매수 — 반등 대기 구간.",
-  "이동평균_5일10일골든크로스_40":   "5일선이 10일선 상향 교차. 단기 매수 신호.",
-  "이동평균_5일10일데드크로스_41":   "5일선이 10일선 하향 교차. 단기 매도 경고.",
-  "이동평균_10일60일정배열_42":      "10일선 > 60일선 정배열. 중기 상승 흐름 유지 (칼마 10.66).",
-  "이동평균_10일60일역배열_43":      "10일선 < 60일선 역배열. 역발상 — 반등 포착 구간.",
-  "이동평균_10일60일골든크로스_44":  "10일선이 60일선 상향 교차. 중기 매수 신호.",
-  "이동평균_10일60일데드크로스_45":  "10일선이 60일선 하향 교차. 중기 매도 경고.",
-  "이동평균_10일20일GC신고가_46":    "10-20일 골든크로스 + 신고가 동시 달성. 강한 돌파 신호.",
+  "캔들과 이평선 5일 이평선 31":{name:"5일 이평선 위",cat:"이동평균",desc:"종가가 5일 이평선 위에 있는 경우. 초단기 상승 흐름.",cond:"당일 종가 > 5MA"},
+  "캔들과 이평선 5일 이평선 32":{name:"5일 이평선 아래 눌림",cat:"이동평균",desc:"캔들이 5일 이평선 아래 눌림 — 역발상 반등 구간 (칼마 18.63).",cond:"당일 종가 < 5MA"},
+  "전환선과 이평선 전환선과 10일 이평선 33":{name:"전환선이 10일 이평선 돌파",cat:"이동평균",desc:"전환선이 10일 이평선을 상향 돌파하는 경우. 단기 추세 상승 전환.",cond:"당일 전환선 > 10MA"},
+  "전환선과 이평선 전환선과 10일 이평선 34":{name:"전환선+스토캐스틱+10일 이평선",cat:"이동평균",desc:"전환선>10MA & 스토캐스틱 GC 동시 발생. 이중 매수 신호.",cond:"전환선>10MA + 스토GC"},
+  "10일 신고가 10일 신고가 35":{name:"10일 신고가 경신",cat:"이동평균",desc:"최근 10일 기준 신고가 달성. 단기 강세 신호.",cond:"고가 ≥ 10일 최고가"},
+  "20일 신고가 20일 신고가 36":{name:"20일 신고가 경신",cat:"이동평균",desc:"최근 20일 기준 신고가. 중기 강세 확인.",cond:"고가 ≥ 20일 최고가"},
+  "60일 신고가 60일 신고가 37":{name:"60일 신고가 경신",cat:"이동평균",desc:"최근 60일 기준 신고가. 강한 중기 상승 추세.",cond:"고가 ≥ 60일 최고가"},
+  "이평산 배열 정배열 38":{name:"5일·10일 이평선 정배열",cat:"이동평균",desc:"5일선>10일선 정배열. 단기 상승 흐름 유지.",cond:"5MA > 10MA"},
+  "이평산 배열 역배열 39":{name:"5일·10일 이평선 역배열",cat:"이동평균",desc:"5일선<10일선 역배열. 역발상 매수 — 반등 대기 구간.",cond:"5MA < 10MA"},
+  "이평산 배열 이평선 골든크로스 40":{name:"5일·10일 골든크로스",cat:"이동평균",desc:"5일선이 10일선 상향 교차. 단기 매수 신호.",cond:"5MA 10MA 상향돌파"},
+  "이평산 배열 이평선 데드크로스 41":{name:"5일·10일 데드크로스",cat:"이동평균",desc:"5일선이 10일선 하향 교차. 단기 매도 경고.",cond:"5MA 10MA 하향돌파"},
+  "이평산 배열 정배열 42":{name:"10일·60일 이평선 정배열",cat:"이동평균",desc:"10일선>60일선 정배열. 중기 상승 흐름 유지 (칼마 10.66).",cond:"10MA > 60MA"},
+  "이평산 배열 역배열 43":{name:"10일·60일 이평선 역배열",cat:"이동평균",desc:"10일선<60일선 역배열. 역발상 — 반등 포착 구간.",cond:"10MA < 60MA"},
+  "이평산 배열 이평선 골든크로스 44":{name:"10일·60일 골든크로스",cat:"이동평균",desc:"10일선이 60일선 상향 교차. 중기 매수 신호.",cond:"10MA 60MA 상향돌파"},
+  "이평산 배열 이평선 데드크로스 45":{name:"10일·60일 데드크로스",cat:"이동평균",desc:"10일선이 60일선 하향 교차. 중기 매도 경고.",cond:"10MA 60MA 하향돌파"},
+  "이평산 배열 이평선 신고가 46":{name:"이평선 신고가 돌파",cat:"이동평균",desc:"골든크로스 후 신고가 달성. 강한 돌파 신호.",cond:"직접 설정"},
   // ── MACD ──
-  "MACD_0선상승돌파_47":             "MACD선이 0선을 상향 돌파. 중기 매수 모멘텀 시작.",
-  "MACD_골든크로스_48":              "MACD선이 시그널선 상향 교차. 단기 매수 신호.",
-  "MACD_데드크로스_49":              "MACD선이 시그널선 하향 교차. 단기 매도 경고.",
-  "MACD_전고점돌파_50":              "히스토그램이 20봉 최고치 돌파. 강한 매수 모멘텀.",
-  "MACD_전저점돌파_51":              "히스토그램이 20봉 최저치 하향. 하락 모멘텀 가속 경고.",
+  "MACD MACD 47":{name:"MACD 0선 상승 돌파",cat:"MACD",desc:"MACD선이 0선을 상향 돌파. 중기 매수 모멘텀 시작.",cond:"MACD선 0 상향돌파"},
+  "MACD MACD 48":{name:"MACD 골든크로스",cat:"MACD",desc:"MACD선이 시그널선 상향 교차. 단기 매수 신호.",cond:"MACD선이 시그널선 상향돌파"},
+  "MACD MACD 49":{name:"MACD 데드크로스",cat:"MACD",desc:"MACD선이 시그널선 하향 교차. 단기 매도 경고.",cond:"MACD선이 시그널선 하향돌파"},
+  "MACD MACD 50":{name:"MACD 전고점 돌파",cat:"MACD",desc:"히스토그램이 20봉 최고치 돌파. 강한 매수 모멘텀.",cond:"히스토그램>0 + 20봉 최고 갱신"},
+  "MACD MACD 51":{name:"MACD 전저점 하향 돌파",cat:"MACD",desc:"히스토그램이 20봉 최저치 하향. 하락 모멘텀 가속 경고.",cond:"히스토그램<0 + 20봉 최저 갱신"},
   // ── RSI ──
-  "RSI_과열진입":                    "RSI가 70을 상향 돌파. 과열 진입 — 추세 강함.",
-  "RSI_과열이탈":                    "RSI가 70 아래로 이탈. 과열 해소 후 조정 국면.",
+  "RSI RSI 52":{name:"RSI 지표",cat:"RSI",desc:"RSI 강도 지표 — 50 이상: 매수세 우세 / 70 이상: 과열 / 30 이하: 과매도",cond:"RSI 값 확인"},
   // ── ADX/DMI ──
-  "ADX_과열진입_53":                 "ADX가 25를 상향 돌파. 뚜렷한 추세 시작 신호.",
-  "ADX_과열이탈_54":                 "ADX가 25 아래로 이탈. 추세 약화 — 횡보 전환 주의.",
-  "ADX_침체진입_55":                 "ADX가 20 아래로 하락. 추세 소멸 — 에너지 압축 중.",
-  "ADX_침체이탈_56":                 "ADX가 20을 상향 돌파. 새로운 추세 시작 신호.",
-  "ADX_전고점돌파_57":               "ADX가 30봉 최고치 경신. 추세 강도 상승 확인.",
-  "ADX_전저점돌파_58":               "ADX가 30봉 최저치 하향. 추세 완전 소멸 — 반전 직전 신호.",
-  "ADX_최저값_59":                   "ADX가 현재 바닥 수준. 추세 반전 임박 대기 구간.",
-  "ADX_매수세상승_60":               "DMI+ 상승. 매수 세력이 강해지는 중.",
-  "ADX_매도세상승_61":               "DMI- 상승. 매도 극대화 — 역발상 매수 포착 구간.",
+  "ADX ADX 53":{name:"ADX 과열 진입 (추세 시작)",cat:"ADX/DMI",desc:"ADX가 25를 상향 돌파. 뚜렷한 추세 시작 신호.",cond:"ADX 25 상향돌파"},
+  "ADX ADX 54":{name:"ADX 과열 이탈 (추세 약화)",cat:"ADX/DMI",desc:"ADX가 25 아래로 이탈. 추세 약화 — 횡보 전환 주의.",cond:"ADX 25 하향돌파"},
+  "ADX ADX 55":{name:"ADX 침체 진입 (추세 소멸)",cat:"ADX/DMI",desc:"ADX가 20 아래로 하락. 추세 소멸 — 에너지 압축 중.",cond:"ADX 20 하향돌파"},
+  "ADX ADX 56":{name:"ADX 침체 이탈 (새 추세 시작)",cat:"ADX/DMI",desc:"ADX가 20을 상향 돌파. 새로운 추세 시작 신호.",cond:"ADX 20 상향돌파"},
+  "ADX ADX 57":{name:"ADX 전고점 돌파",cat:"ADX/DMI",desc:"ADX가 30봉 최고치 경신. 추세 강도 상승 확인.",cond:"ADX > 30봉 최고ADX"},
+  "ADX ADX 58":{name:"ADX 전저점 하향 (추세 반전 직전)",cat:"ADX/DMI",desc:"ADX가 30봉 최저치 하향. 추세 완전 소멸 — 반전 직전 신호.",cond:"ADX < 30봉 최저ADX"},
+  "ADX ADX 59":{name:"ADX 최저값 (추세 반전 임박)",cat:"ADX/DMI",desc:"ADX가 현재 바닥 수준. 추세 반전 임박 대기 구간.",cond:"ADX = 20봉 최저"},
+  "ADX ADX 60":{name:"DMI 매수세 상승",cat:"ADX/DMI",desc:"DMI+ 상승. 매수 세력이 강해지는 중.",cond:"+DI 상승 & -DI 하락"},
+  "ADX ADX 61":{name:"DMI 매도세 상승 (역발상)",cat:"ADX/DMI",desc:"DMI- 상승. 매도 극대화 — 역발상 매수 포착 구간.",cond:"-DI 상승 & +DI 하락"},
   // ── VO/거래량 ──
-  "VO_양수_62":                      "단기 거래량이 중기보다 활발. 거래 증가 — 관심 집중 (칼마 15.27).",
-  "VO_최저점상승_64":                "거래량 오실레이터 바닥에서 반등. 거래 활성화 시작.",
+  "VO VO 62":{name:"볼륨 오실레이터 0선 상승 돌파",cat:"VO/거래량",desc:"단기 거래량이 중기보다 활발. 거래 증가 — 관심 집중 (칼마 15.27).",cond:"VO(5/10) > 0"},
+  "VO VO 63":{name:"볼륨 오실레이터",cat:"VO/거래량",desc:"볼륨 오실레이터 상태 확인.",cond:"직접 설정"},
+  "VO VO 64":{name:"볼륨 오실레이터 최저점 상승",cat:"VO/거래량",desc:"거래량 오실레이터 바닥에서 반등. 거래 활성화 시작.",cond:"VO>0 + 직전 최저VO<0 반등"},
+  "VO VO 65":{name:"볼륨 오실레이터 보조 신호",cat:"VO/거래량",desc:"볼륨 오실레이터 보조 신호.",cond:"직접 설정"},
   // ── 피벗 ──
-  "Pivot_중심터치_66":               "캔들이 피벗 중심선 터치. 핵심 지지/저항 확인 (칼마 24.55).",
-  "Pivot_R1터치_67":                 "캔들이 R1 저항선 터치. 저항 돌파 여부 주시.",
-  "Pivot_S1터치_68":                 "캔들이 S1 지지선 터치. 지지 확인 후 반등 기대 (칼마 18.47).",
-  "Pivot_BII_69":                    "피벗 터치 + BII 양수. 기관 매수가 동반된 피벗 지지.",
-  // ── 기타 ──
-  "BWI_확장_70":                     "볼린저밴드 폭이 수축 후 확장 전환. 대형 추세 폭발 직전.",
-  "기타_이격도투자심리도_71":        "이격도 < 98 + 투자심리 < 40 동시. 과매도 복합 반등 신호.",
-  // ── 시즌2 ──
-  "시즌2_후행스팬60이평선터치_72":   "후행스팬이 60일선 터치 + 종이격 양수 + 스팬B 상승. 3중 지지.",
-  "시즌2_기준선하락BII상승_73":      "기준선 꺾임 + BII 상승. 기관이 하락 중 저점 매집 중.",
-  "시즌2_정배열저가매수_74":         "정배열 상태에서 10일선 대비 2% 이상 눌린 저점. 눌림 매수 기회.",
+  "Pivot Pivot 66":{name:"Pivot 중심값 터치",cat:"피벗",desc:"당일 캔들이 피벗 중심선 터치 — 핵심 지지/저항 확인 (칼마 24.55).",cond:"저가≤피벗중심≤고가"},
+  "Pivot Pivot 67":{name:"Pivot R1 터치 (저항선)",cat:"피벗",desc:"당일 캔들이 R1 저항선 터치. 저항 돌파 여부 주시.",cond:"저가≤R1≤고가"},
+  "Pivot Pivot 68":{name:"Pivot S1 터치 (지지선)",cat:"피벗",desc:"당일 캔들이 S1 지지선 터치. 지지 확인 후 반등 기대 (칼마 18.47).",cond:"저가≤S1≤고가"},
+  "Pivot과 BII Pivot과 BII 69":{name:"Pivot과 BII 동반 (큰손 매수)",cat:"피벗",desc:"피벗 터치 + BII 양수. 기관 매수가 동반된 피벗 지지.",cond:"피벗터치 + BII>0"},
+  // ── 기타 지표 ──
+  "BWI BWI 70":{name:"BWI 수축 후 확장 (대형 추세 임박)",cat:"기타 지표",desc:"볼린저밴드 폭이 수축 후 확장 전환. 대형 추세 폭발 직전.",cond:"BWI = 10봉 최저 후 상승"},
+  "이격도와 투자심리도 이격도와 투자심리도 71":{name:"이격도+투자심리도 과매도",cat:"기타 지표",desc:"이격도<98 & 투자심리<40 동시. 과매도 복합 반등 신호.",cond:"20일이격<98 + 투자심리<40"},
+  // ── 시즌2 신규 ──
+  "후행스팬 60이평선 터치 72":{name:"후행스팬+60이평선 터치",cat:"시즌2 신규",desc:"후행스팬이 60일선 터치 + 종이격 양수 + 스팬B 상승. 3중 지지.",cond:"직접 설정"},
+  "기준선 하락 BII 상승 73":{name:"기준선 하락+BII 상승 (큰손 매집)",cat:"시즌2 신규",desc:"기준선 꺾임 + BII 상승. 기관이 하락 중 저점 매집 중.",cond:"기준선 하락 + BII 전봉 대비 상승"},
+  "정배열 저가매수 74":{name:"정배열 저가매수",cat:"시즌2 신규",desc:"정배열 상태에서 10일선 대비 2% 이상 눌린 저점 — 눌림 매수 기회.",cond:"10>20>60MA + 종가>60MA + 종가<10MA×0.98"},
 };
 var SIG_LABELS={
   "TRANS_UP_히스트":  "⚡ 횡보→상승 전환 + 매수세 증가",
@@ -754,6 +755,13 @@ function toggleTrendDetail(i){
   var el=document.getElementById("trend-detail-"+i);
   if(!el)return;
   el.style.display=el.style.display==="none"?"block":"none";
+}
+
+function toggleLookupTrend(idx){
+  var el=document.getElementById("lt-"+idx);
+  if(!el)return;
+  var open=el.style.display!=="none";
+  el.style.display=open?"none":"block";
 }
 
 // 모달
