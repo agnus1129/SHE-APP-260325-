@@ -388,6 +388,13 @@ function renderLookup(code,name,r){
   h+='• <b>자동매매 신호</b>: SHE 시스템이 내일 매수 후보로 판단한 기술적 조건';
   h+='</div></div>';
 
+  // ── 네이버 차트 링크 ──
+  h+='<div style="text-align:center;margin-top:4px;margin-bottom:8px;">';
+  h+='<a href="https://finance.naver.com/item/fchart.nhn?code='+code+'" target="_blank" ';
+  h+='style="display:inline-flex;align-items:center;gap:8px;background:rgba(3,199,90,0.12);border:1px solid rgba(3,199,90,0.4);';
+  h+='border-radius:10px;padding:12px 24px;color:#03C75A;font-size:15px;font-weight:800;text-decoration:none;">';
+  h+='📈 네이버 차트 바로가기</a></div>';
+
   var ts=r.updated_at?'<div style="font-size:10px;color:var(--muted);text-align:right;margin-top:4px;">분석: '+r.updated_at.slice(0,16).replace("T"," ")+'</div>':'';
   area.innerHTML=h+ts;
 }
