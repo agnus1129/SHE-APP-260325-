@@ -60,15 +60,34 @@ body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','M
 .hd-label{font-size:10px;color:var(--muted);}
 .hd-val{font-size:15px;font-weight:700;}
 .signal-date{font-size:12px;color:var(--muted);margin-bottom:12px;}
+/* ── 추천종목 카드 (개선) ── */
 .signal-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;cursor:pointer;transition:border-color 0.2s;}
 .signal-item:hover{border-color:var(--gold);}
-.signal-top{display:flex;justify-content:space-between;margin-bottom:8px;}
-.signal-name{font-size:17px;font-weight:800;}
+.sig-rank{font-size:11px;font-weight:900;color:var(--gold);background:rgba(227,179,65,0.12);border:1px solid rgba(227,179,65,0.3);border-radius:20px;padding:1px 8px;display:inline-block;margin-bottom:6px;}
+.sig-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
+.sig-name-block{flex:1;}
+.sig-name{font-size:17px;font-weight:800;}
+.sig-code{font-size:11px;color:var(--muted);margin-top:1px;}
+.sig-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
 .signal-grade{font-size:12px;font-weight:800;padding:2px 8px;border-radius:20px;border:1px solid;}
 .grade-A{color:var(--gold);border-color:var(--gold);background:rgba(227,179,65,0.1);}
 .grade-B{color:var(--accent);border-color:var(--accent);background:rgba(255,61,143,0.1);}
 .grade-C{color:var(--muted);border-color:var(--border);}
-.signal-type{font-size:12px;color:var(--accent);background:rgba(255,61,143,0.1);padding:3px 8px;border-radius:4px;display:inline-block;}
+.sig-calmar{font-size:26px;font-weight:900;color:var(--gold);line-height:1;}
+.sig-calmar-label{font-size:9px;color:var(--muted);}
+.sig-meta{display:flex;gap:6px;margin:8px 0 6px;}
+.sig-trend-box{flex:1;background:var(--card);border-radius:8px;padding:6px 4px;text-align:center;}
+.sig-trend-label{font-size:9px;color:var(--muted);}
+.sig-trend-val{font-size:13px;font-weight:800;}
+.sig-cur-price{font-size:13px;color:var(--text);font-weight:700;margin-bottom:6px;}
+.sig-fired{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+.sig-tag{font-size:10px;background:rgba(255,61,143,0.1);color:var(--accent2);border:1px solid rgba(255,61,143,0.2);border-radius:4px;padding:2px 6px;}
+/* 모달 내 섹션 */
+.modal-section{font-size:13px;color:var(--accent2);font-weight:700;margin:14px 0 8px;}
+.sig-summary-box{background:rgba(227,179,65,0.06);border:1px solid rgba(227,179,65,0.2);border-radius:10px;padding:12px;margin-bottom:4px;font-size:14px;line-height:1.8;color:var(--text);}
+.sig-green-tag{font-size:12px;background:rgba(63,185,80,0.12);color:var(--green);border:1px solid rgba(63,185,80,0.3);border-radius:4px;padding:3px 8px;display:inline-block;margin:3px 2px;}
+.sig-red-tag{font-size:12px;background:rgba(248,81,73,0.12);color:var(--red);border:1px solid rgba(248,81,73,0.3);border-radius:4px;padding:3px 8px;display:inline-block;margin:3px 2px;}
+.sig-auto-tag{font-size:12px;background:rgba(255,61,143,0.12);color:var(--accent);border:1px solid rgba(255,61,143,0.3);border-radius:4px;padding:3px 8px;display:inline-block;margin:3px 2px;}
 .analysis-row{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border);}
 .analysis-row:last-child{border-bottom:none;}
 .analysis-label{color:var(--muted);font-size:14px;}
@@ -116,6 +135,7 @@ body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','M
   <div class="login-subtitle">주식투자 정보서비스</div>
   <div id="login-holder" class="login-holder" style="display:none;"></div>
   <div class="login-sub">보유자 전용 · 실시간 투자정보</div>
+  <div style="font-size:11px;color:var(--muted);text-align:center;opacity:0.45;margin-bottom:20px;">만든이 박상규</div>
   <div class="login-card">
     <label>전화번호</label>
     <input type="tel" id="input-phone" placeholder="등록된 전화번호를 입력하세요" maxlength="11">
@@ -595,168 +615,178 @@ function renderSignals(data){
   if(date.length===8)h+='<div class="signal-date">📅 '+date.slice(0,4)+'-'+date.slice(4,6)+'-'+date.slice(6,8)+' 기준</div>';
   signalData={};
   sigs.forEach(function(s,i){
-    var key="sg"+i;signalData[key]=s;
-    var grade=s.grade||"C";var label=SIG_LABELS[s.signal_type]||s.signal_type||"";
+    var key="sg"+i; signalData[key]=s;
+    var grade=s.grade||"C";
+    var rank=s.rank||i+1;
+    var calmar=s.calmar||s.calmar_rank||0;
+    var scM=s.sc_monthly||0; var scW=s.sc_weekly||0; var scD=s.sc_daily||0;
+    var fired=s.signals_kr||s.all_signals||[];
+    var curPrice=s.cur_price?s.cur_price.toLocaleString()+'원':'─';
+
+    // 추세 색상
+    function tClr(sc){return sc>=9?'var(--green)':sc>=6?'var(--gold)':'var(--red)';}
+
     h+='<div class="signal-item" onclick="showSignal(\''+key+'\')">';
-    h+='<div class="signal-top"><div><div class="signal-name">'+(s.name||s.code)+'</div>';
-    h+='<div style="font-size:11px;color:var(--muted);">'+s.code+'</div></div>';
-    h+='<div class="signal-grade grade-'+grade+'">'+grade+'</div></div>';
-    h+='<div class="signal-type">'+label+'</div></div>';
+    // 순위 뱃지
+    h+='<div class="sig-rank">'+rank+'위</div>';
+    // 헤더
+    h+='<div class="sig-header">';
+    h+='<div class="sig-name-block">';
+    h+='<div class="sig-name">'+(s.name||s.code)+'</div>';
+    h+='<div class="sig-code">'+s.code+'</div>';
+    h+='<div class="sig-cur-price">💰 현재가 '+curPrice+'</div>';
+    h+='</div>';
+    h+='<div class="sig-right">';
+    h+='<div class="signal-grade grade-'+grade+'">'+grade+'</div>';
+    h+='<div class="sig-calmar">'+Math.round(calmar)+'</div>';
+    h+='<div class="sig-calmar-label">CALMAR</div>';
+    h+='</div></div>';
+    // 추세 (월/주/일)
+    h+='<div class="sig-meta">';
+    h+='<div class="sig-trend-box"><div class="sig-trend-label">월봉</div><div class="sig-trend-val" style="color:'+tClr(scM)+'">'+(scM?scM+'/13':'─')+'</div></div>';
+    h+='<div class="sig-trend-box"><div class="sig-trend-label">주봉</div><div class="sig-trend-val" style="color:'+tClr(scW)+'">'+(scW?scW+'/13':'─')+'</div></div>';
+    h+='<div class="sig-trend-box"><div class="sig-trend-label">일봉</div><div class="sig-trend-val" style="color:'+tClr(scD)+'">'+(scD?scD+'/13':'─')+'</div></div>';
+    h+='</div>';
+    // 발생 지표 태그
+    if(fired.length){
+      h+='<div class="sig-fired">';
+      fired.slice(0,5).forEach(function(sg){h+='<span class="sig-tag">'+sg+'</span>';});
+      if(fired.length>5)h+='<span class="sig-tag">+'+( fired.length-5)+'</span>';
+      h+='</div>';
+    }
+    h+='</div>';
   });
   area.innerHTML=h;
 }
 
-function _trendKor(t){
-  var m={"TRANS_UP":"상승 전환","UP":"상승중","SIDE":"횡보","DOWN":"하락","TRANS_DOWN":"하락 전환"};
-  return m[t]||t||"-";
-}
 function showSignal(key){
   var s=signalData[key];if(!s)return;
-  var grade=s.grade||"C";var label=SIG_LABELS[s.signal_type]||s.signal_type||"";
-
-  var SIG_DESC={
-    "TRANS_UP_히스트":  "오랫동안 옆으로 움직이던 주가가 위로 방향을 바꾸는 시점입니다. 동시에 매수세도 강해지고 있어 신뢰도가 높습니다.",
-    "TRANS_UP_단독":    "재무가 우량한 종목이 횡보에서 상승으로 방향을 바꾸는 시점입니다. 단독으로도 믿을 수 있는 강한 신호입니다.",
-    "TRANS_UP_기관D20": "상승 전환 시점에 기관투자자(펀드·보험·연기금 등)가 20일간 꾸준히 사들이고 있는 종목입니다.",
-    "UP_히스트중기":    "이미 오르고 있는 종목에서 매수세가 다시 강해지는 시점입니다. 추세를 따라가는 중기 전략에 적합합니다.",
-    "UP_히스트_S8강화": "상승추세이면서 저점에서 바닥을 다지는 매집 구간에 진입한 종목입니다. 조정 후 재상승 가능성이 높습니다.",
-    "TRANS_UP_CCW_S2":  "상승 전환과 동시에 상승가속 구간에 진입한 종목입니다. 두 신호가 겹쳐 신뢰도가 높습니다.",
-    "UP_대차감소":      "상승추세이면서 공매도(하락 베팅) 물량이 줄어드는 종목입니다. 하락 압력이 약해지는 긍정적 신호입니다.",
-    "UP_기관D20":       "상승추세이면서 기관투자자가 20일간 꾸준히 매수 중인 종목입니다.",
-  };
-  var GRADE_DESC={
-    "A":"A등급 — 최우선 진입 후보 (우량주, 조건 강함)",
-    "B":"B등급 — 우선 진입 후보",
-    "C":"C등급 — 일반 진입 후보",
-  };
-  var CCW_DESC={
-    "S1":"S1 상승초입 — 하락 끝, 반등 시작",
-    "S2":"S2 상승가속 — 본격 상승 구간",
-    "S3":"S3 상승과열 — 고점 근처, 주의 필요",
-    "S4":"S4 분산초입 — 상승 마무리",
-    "S5":"S5 하락초입 — 하락 시작",
-    "S6":"S6 하락가속 — 본격 하락",
-    "S7":"S7 하락과매도 — 과매도, 반등 대기",
-    "S8":"S8 매집초입 — 저점 매집 구간",
-  };
-  var TF_IND_NAME={
-    "이동평균 정배열":"📈 이평 정배열",
-    "MACD 0선 위치":"📊 MACD 0선",
-    "ADX+DMI":"💪 ADX+DMI",
-    "아룬 오실레이터":"🔄 아룬",
-    "켈트너 채널":"📐 켈트너",
-    "OBV":"📦 OBV",
-    "MFI 자금흐름":"💰 MFI",
-    "차이킨 오실레이터":"🏛 차이킨",
-  };
+  var grade=s.grade||"C";
+  var rank=s.rank||"─";
+  var calmar=Math.round(s.calmar||s.calmar_rank||0);
+  var scM=s.sc_monthly||0; var scW=s.sc_weekly||0; var scD=s.sc_daily||0;
+  var fired=s.signals_kr||s.all_signals||[];
+  var autoSigs=s.auto_signals||[];
+  var greenSigs=s.green_signals||[];
+  var redSigs=s.red_signals||[];
+  var curPrice=s.cur_price?s.cur_price.toLocaleString()+'원':'조회중';
+  var GRADE_DESC={"A":"A등급 — 최우선 진입 후보","B":"B등급 — 우선 진입 후보","C":"C등급 — 일반 진입 후보"};
+  var CCW_DESC={"S1":"S1 상승초입","S2":"S2 상승가속","S3":"S3 상승과열","S4":"S4 분산초입","S5":"S5 하락초입","S6":"S6 하락가속","S7":"S7 하락과매도","S8":"S8 매집초입"};
+  function tClr(sc){return sc>=9?'var(--green)':sc>=6?'var(--gold)':'var(--red)';}
 
   var html='';
-
   // ── 헤더 ──
-  html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">';
-  html+='<div><div style="font-size:20px;font-weight:800;">'+(s.name||s.code)+'</div>';
-  html+='<div style="font-size:12px;color:var(--muted);">종목코드: '+s.code+'</div></div>';
-  html+='<div class="signal-grade grade-'+grade+'">'+grade+'</div></div>';
-
-  // ── 현재가 / 60일 종이격 ──
-  if(s.cur_price&&s.cur_price>0){
-    html+='<div style="display:flex;gap:12px;margin-bottom:12px;">';
-    html+='<div style="flex:1;background:var(--card);border-radius:8px;padding:10px;text-align:center;">';
-    html+='<div style="font-size:11px;color:var(--muted);">현재가</div>';
-    html+='<div style="font-size:18px;font-weight:800;">'+s.cur_price.toLocaleString()+'원</div></div>';
-    if(s.gap_60d!==undefined){
-      var gClr=s.gap_60d>=0?"var(--green)":"var(--red)";
-      html+='<div style="flex:1;background:var(--card);border-radius:8px;padding:10px;text-align:center;">';
-      html+='<div style="font-size:11px;color:var(--muted);">60일 종이격</div>';
-      html+='<div style="font-size:16px;font-weight:700;color:'+gClr+';">'+(s.gap_60d>=0?"+":"")+s.gap_60d.toLocaleString()+'원</div></div>';
-    }
-    html+='</div>';
-  }
-
-  // ── 신호 설명 ──
-  html+='<div style="background:rgba(255,61,143,0.08);border:1px solid rgba(255,61,143,0.2);border-radius:8px;padding:12px;margin-bottom:12px;">';
-  html+='<div style="font-size:15px;font-weight:800;color:var(--accent);">'+label+'</div>';
-  html+='<div style="font-size:13px;color:var(--muted);margin-top:6px;">'+(GRADE_DESC[grade]||"")+'</div>';
+  html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">';
+  html+='<div>';
+  html+='<div style="font-size:11px;color:var(--gold);margin-bottom:3px;">'+rank+'위 진입 후보</div>';
+  html+='<div style="font-size:21px;font-weight:900;">'+(s.name||s.code)+'</div>';
+  html+='<div style="font-size:12px;color:var(--muted);">'+s.code+' | '+curPrice+'</div>';
   html+='</div>';
+  html+='<div style="text-align:right;">';
+  html+='<div class="signal-grade grade-'+grade+'">'+grade+'</div>';
+  html+='<div style="font-size:32px;font-weight:900;color:var(--gold);line-height:1.1;margin-top:4px;">'+calmar+'</div>';
+  html+='<div style="font-size:10px;color:var(--muted);">CALMAR</div>';
+  html+='</div></div>';
 
-  // ── 진입 근거 ──
-  html+='<div style="font-size:13px;color:var(--accent2);font-weight:700;margin-bottom:8px;">📋 진입 근거</div>';
-  html+='<div style="background:var(--card);border-radius:8px;padding:12px;margin-bottom:14px;">';
-  html+='<div style="font-size:14px;color:var(--text);line-height:1.8;">'+(SIG_DESC[s.signal_type]||s.signal_type||"-")+'</div>';
-  html+='</div>';
-
-  // ── 월봉/주봉/일봉 13점 추세 (압축 + 클릭 시 세부) ──
-  var tfs=[
-    {label:"📅 월봉",tf:s.trend_month},
-    {label:"📆 주봉",tf:s.trend_week},
-    {label:"📊 일봉",tf:s.trend_day},
-  ];
-  html+='<div style="font-size:13px;color:var(--accent2);font-weight:700;margin-bottom:8px;">📈 추세 분석 (13점 만점)</div>';
-  html+='<div style="display:flex;gap:8px;margin-bottom:14px;" id="trend-bars">';
-  tfs.forEach(function(t,i){
-    var tf=t.tf; if(!tf) return;
-    var sc=tf.score_num||0; var mx=tf.score_max||13;
-    var pct=Math.round(sc/mx*100);
-    var clr=pct>=70?"var(--green)":pct>=40?"var(--gold)":"var(--red)";
-    html+='<div onclick="toggleTrendDetail('+i+')" style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px;cursor:pointer;text-align:center;">';
-    html+='<div style="font-size:12px;color:var(--muted);margin-bottom:4px;">'+t.label+'</div>';
-    html+='<div style="font-size:20px;font-weight:900;color:'+clr+';">'+sc+'<span style="font-size:12px;color:var(--muted);">/'+mx+'</span></div>';
-    // 점수 바
-    html+='<div style="background:var(--border);border-radius:4px;height:4px;margin-top:6px;">';
-    html+='<div style="background:'+clr+';width:'+pct+'%;height:4px;border-radius:4px;"></div></div>';
-    html+='<div style="font-size:10px;color:var(--muted);margin-top:4px;">눌러서 상세보기</div>';
+  // ── 추세 ──
+  html+='<div style="display:flex;gap:6px;margin-bottom:14px;">';
+  [['월봉',scM],['주봉',scW],['일봉',scD]].forEach(function(t){
+    var sc=t[1]; var clr=tClr(sc);
+    html+='<div style="flex:1;background:var(--card);border-radius:8px;padding:8px;text-align:center;">';
+    html+='<div style="font-size:10px;color:var(--muted);">'+t[0]+'</div>';
+    html+='<div style="font-size:18px;font-weight:900;color:'+clr+'">'+(sc?sc+'/13':'─')+'</div>';
+    if(sc){html+='<div style="background:var(--border);border-radius:4px;height:3px;margin-top:4px;"><div style="background:'+clr+';width:'+Math.round(sc/13*100)+'%;height:3px;border-radius:4px;"></div></div>';}
     html+='</div>';
   });
   html+='</div>';
 
-  // 세부 추세 패널 (숨겨진 상태)
-  tfs.forEach(function(t,i){
-    var tf=t.tf; if(!tf||!tf.indicators||!tf.indicators.length) return;
-    html+='<div id="trend-detail-'+i+'" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;">';
-    html+='<div style="font-size:13px;font-weight:800;margin-bottom:10px;">'+t.label+' 지표별 상세 ('+tf.score_num+'/'+(tf.score_max||13)+'점)</div>';
-    tf.indicators.forEach(function(ind){
-      var nm=TF_IND_NAME[ind.name]||ind.name;
-      var sc=ind.score||0; var mx=ind.max||1;
-      var clr=sc>0?"var(--green)":"var(--red)";
-      var bar=""; for(var b=0;b<mx;b++){var bc=b<sc?"var(--green)":"var(--border)";bar+='<span style="color:'+bc+'">●</span>';}
-      html+='<div style="padding:8px 0;border-bottom:1px solid var(--border);">';
-      html+='<div style="display:flex;justify-content:space-between;align-items:center;">';
-      html+='<div style="font-size:13px;font-weight:700;">'+nm+'</div>';
-      html+='<div style="font-size:14px;font-weight:800;color:'+clr+';">'+sc+'/'+mx+'점 '+bar+'</div></div>';
-      html+='<div style="font-size:12px;color:var(--muted);margin-top:3px;">'+ind.display+'</div>';
-      html+='</div>';
-    });
-    html+='</div>';
-  });
+  // ── 총평 (Claude API) ──
+  html+='<div class="modal-section">🤖 AI 총평</div>';
+  html+='<div class="sig-summary-box" id="ai-summary">⏳ 분석 중...</div>';
 
-  // ── CCW + MACD + 기관 ──
-  html+='<div style="font-size:13px;color:var(--accent2);font-weight:700;margin-bottom:8px;">📌 상세 지표</div>';
-  var rows=[
-    ["역시계곡선(CCW)", CCW_DESC[s.ccw]||s.ccw||"-", "주가-거래량 관계로 시장 국면 파악"],
-    ["MACD 히스토그램", s.hist_up?"📈 증가 중 (매수 모멘텀 강화)":"📉 감소 중", "매수/매도 모멘텀 강도"],
-    ["기관 순매수", s.inst_buy?"✅ 최근 매수 중":"❌ 매수 없음", "기관투자자 순매수 여부"],
-  ];
-  if(s.all_signals&&s.all_signals.length>1){
-    rows.push(["복수 신호", s.all_signals.map(function(k){return SIG_LABELS[k]||k;}).join("<br>"), "여러 신호 동시 발생 — 신뢰도 높음"]);
-  }
-  rows.forEach(function(row){
-    html+='<div style="padding:10px 0;border-bottom:1px solid var(--border);">';
-    html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;">';
-    html+='<div style="font-size:13px;color:var(--muted);min-width:110px;">'+row[0]+'</div>';
-    html+='<div style="font-size:14px;font-weight:700;text-align:right;flex:1;">'+row[1]+'</div></div>';
-    html+='<div style="font-size:11px;color:var(--muted);margin-top:2px;">'+row[2]+'</div>';
-    html+='</div>';
-  });
+  // ── 칼마 근거 지표 ──
+  html+='<div class="modal-section">📊 칼마 근거 지표</div>';
+  html+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;">';
+  if(fired.length){
+    fired.forEach(function(sg){html+='<span class="sig-auto-tag">'+sg+'</span>';});
+  }else{html+='<span style="color:var(--muted);font-size:13px;">─</span>';}
+  html+='</div>';
 
-  // 기관 안내
-  if(!s.inst_buy){
-    html+='<div style="background:rgba(248,81,73,0.06);border:1px solid rgba(248,81,73,0.2);border-radius:8px;padding:10px;margin-top:12px;">';
-    html+='<div style="font-size:12px;color:var(--muted);">ℹ️ 기관순매수 데이터는 전일 기준으로 반영됩니다.</div>';
-    html+='</div>';
+  // ── 자동매매 시그널 ──
+  html+='<div class="modal-section">⚡ 자동매매 시그널</div>';
+  html+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;">';
+  if(autoSigs.length){
+    autoSigs.forEach(function(sg){html+='<span class="sig-auto-tag">'+(sg.name||sg)+'</span>';});
+  }else{html+='<span style="color:var(--muted);font-size:13px;">없음</span>';}
+  html+='</div>';
+
+  // ── 녹색 시그널 ──
+  html+='<div class="modal-section">🟢 녹색 시그널</div>';
+  html+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;">';
+  if(greenSigs.length){
+    greenSigs.forEach(function(sg){html+='<span class="sig-green-tag">'+(sg.name||sg)+'</span>';});
+  }else{html+='<span style="color:var(--muted);font-size:13px;">없음</span>';}
+  html+='</div>';
+
+  // ── 적색 시그널 ──
+  html+='<div class="modal-section">🔴 적색 시그널</div>';
+  html+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px;">';
+  if(redSigs.length){
+    redSigs.forEach(function(sg){html+='<span class="sig-red-tag">'+(sg.name||sg)+'</span>';});
+  }else{html+='<span style="color:var(--muted);font-size:13px;">없음</span>';}
+  html+='</div>';
+
+  // ── 상세 지표 (CCW/MACD) ──
+  var CCW=s.ccw||""; var histUp=s.hist_up;
+  if(CCW||histUp!==undefined){
+    html+='<div class="modal-section">📌 상세 지표</div>';
+    if(CCW){html+='<div style="padding:8px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;"><span style="color:var(--muted);font-size:13px;">역시계곡선(CCW)</span><span style="font-weight:700;font-size:14px;">'+(CCW_DESC[CCW]||CCW)+'</span></div>';}
+    html+='<div style="padding:8px 0;display:flex;justify-content:space-between;"><span style="color:var(--muted);font-size:13px;">MACD 히스토그램</span><span style="font-weight:700;font-size:14px;">'+(histUp?'📈 증가 중':'📉 감소 중')+'</span></div>';
   }
 
   document.getElementById("modal-body").innerHTML=html;
   document.getElementById("modal").classList.add("open");
+
+  // Claude API 총평 생성
+  _genAISummary(s, calmar, scM, scW, scD, fired);
+}
+
+function _genAISummary(s, calmar, scM, scW, scD, fired){
+  var prompt = '주식 종목 분석 결과를 투자자에게 3줄 요약으로 설명해줘. 전문용어 없이 쉽게.\n'
+    +'종목명: '+(s.name||s.code)+'\n'
+    +'칼마비율: '+calmar+' (높을수록 수익 대비 위험 낮음, 10 이상이면 우량)\n'
+    +'추세점수(13점만점): 월봉'+scM+' 주봉'+scW+' 일봉'+scD+'\n'
+    +'발생 지표: '+fired.slice(0,5).join(', ')+'\n'
+    +'등급: '+( s.grade||'C')+'\n'
+    +'이 종목의 투자 매력을 2~3문장으로 설명해줘. 숫자보다 의미를 중심으로.';
+
+  fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      model:"claude-sonnet-4-20250514",
+      max_tokens:200,
+      messages:[{role:"user",content:prompt}]
+    })
+  }).then(function(r){return r.json();})
+  .then(function(d){
+    var el=document.getElementById("ai-summary"); if(!el)return;
+    var txt=(d.content&&d.content[0]&&d.content[0].text)||"분석 결과를 가져올 수 없습니다.";
+    el.innerHTML=txt;
+  }).catch(function(){
+    var el=document.getElementById("ai-summary"); if(!el)return;
+    // API 실패 시 로컬 요약
+    var score=scM+scW+scD;
+    var txt='';
+    if(calmar>=500)txt+='칼마비율 '+calmar+'로 매우 강한 수익-위험 구조를 보입니다. ';
+    else if(calmar>=100)txt+='칼마비율 '+calmar+'로 안정적인 수익 구조입니다. ';
+    else txt+='칼마비율 '+calmar+'로 진입 조건을 충족합니다. ';
+    if(score>=27)txt+='월봉·주봉·일봉 모두 강한 상승 추세입니다. ';
+    else if(score>=18)txt+='중장기 추세가 양호한 상태입니다. ';
+    else txt+='단기 시그널이 발생했습니다. ';
+    txt+=fired.length+'개 지표가 동시에 발생하여 신뢰도가 높습니다.';
+    el.innerHTML=txt;
+  });
 }
 
 function toggleTrendDetail(i){
