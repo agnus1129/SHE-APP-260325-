@@ -28,11 +28,60 @@ DATA_DIR = Path(os.environ.get("RAILWAY_VOLUME_MOUNT_PATH", "data"))
 DATA_DIR.mkdir(exist_ok=True, parents=True)
 
 # 데이터 파일
-F_USERS     = DATA_DIR / "users.json"         # 사용자 목록 {token: {holder, phone, ...}}
-F_HOLDINGS  = DATA_DIR / "holdings.json"      # SHE → Push (holder별 보유종목)
-F_SIGNALS   = DATA_DIR / "signals.json"       # SHE → Push (17:00 진입후보)
-F_LOOKUP_Q  = DATA_DIR / "lookup_queue.json"  # 사용자 → 조회요청
-F_LOOKUP_R  = DATA_DIR / "lookup_results.json"# SHE → 조회결과
+F_USERS     = DATA_DIR / "users.json"
+F_HOLDINGS  = DATA_DIR / "holdings.json"
+F_SIGNALS   = DATA_DIR / "signals.json"
+F_LOOKUP_Q  = DATA_DIR / "lookup_queue.json"
+F_LOOKUP_R  = DATA_DIR / "lookup_results.json"
+
+# ── 시그널 한글명 ─────────────────────────────────────────
+SIG_KR = {
+    '60일_종이격_상승_추세_1':'60일선위','60일_종이격_하락_추세_2':'60일선아래',
+    '60일_종이격_상승_추세_3':'60일선눌림','200점_전환선_전환선_상승_4':'전환선200점',
+    '100점_전환선_전환선_상승_5':'전환선100점','고점주의_전환선_전환선_상승_6':'전환선고점주의',
+    '반달형_전환선_전환선_상승_7':'반달형전환선','200점_기준선_기준선_상승_8':'기준선200점',
+    '100점_기준선_기준선_상승_9':'기준선100점','고점주의_기준선_기준선_상승_10':'기준선고점주의',
+    '저점_기준선_기준선_하락_11':'기준선저점','반달형_기준선_기준선_상승_12':'반달형기준선',
+    '전기선_GC_전기선__13':'전기선GC','전기선_DC_전기선__14':'전기선DC',
+    '구름_앞구름_15':'양운전환','구름_앞구름_16':'음운전환',
+    '캔들과_구름_내구름_17':'캔들구름위양운','캔들과_구름_내구름_18':'캔들구름안양운',
+    '캔들과_구름_내구름_19':'캔들구름아래양운','캔들과_구름_내구름_20':'캔들구름위음운',
+    '캔들과_구름_내구름_21':'캔들구름안음운','캔들과_구름_내구름_22':'캔들구름아래음운',
+    '캔들과_전환선_전환선_하락_23':'캔들전환선눌림','캔들과_전기선_전기선__24':'캔들기준선터치',
+    '후행스팬과_전기선_후행스팬과_전기선_25':'후행스팬기준선터치',
+    '전기선과_신고가_전기선과_신고가_26':'전기선신고가','전기선과_VO_전기선과_VO_27':'전기선VO',
+    '기준선과_선행스팬2_기준선과_선행스팬2_28':'기준선스팬2상승',
+    '기준선과_선행스팬2_기준선과_선행스팬2_29':'기준선스팬2정지',
+    '캔들과_후행스팬과_60일_이평_캔들과_후행스팬과_60일_이평_30':'캔들후행스팬60',
+    '캔들과_이평선_5일_이평선_31':'5일선위','캔들과_이평선_5일_이평선_32':'5일선아래',
+    '전환선과_이평선_전환선과_10일_이평선_33':'전환선10일선위',
+    '전환선과_이평선_전환선과_10일_이평선_34':'전환선스토캐스틱',
+    '10일_신고가_10일_신고가_35':'10일신고가','20일_신고가_20일_신고가_36':'20일신고가',
+    '60일_신고가_60일_신고가_37':'60일신고가','이평산_배열_정배열_38':'5-10정배열',
+    '이평산_배열_역배열_39':'5-10역배열','이평산_배열_이평선_골든크로스_40':'5-10GC',
+    '이평산_배열_이평선_데드크로스_41':'5-10DC','이평산_배열_정배열_42':'10-60정배열',
+    '이평산_배열_역배열_43':'10-60역배열','이평산_배열_이평선_골든크로스_44':'10-60GC',
+    '이평산_배열_이평선_데드크로스_45':'10-60DC','이평산_배열_이평선_신고가_46':'GC신고가',
+    'MACD_MACD_47':'MACD0선돌파','MACD_MACD_48':'MACD골든크로스',
+    'MACD_MACD_49':'MACD데드크로스','MACD_MACD_50':'MACD전고점돌파',
+    'MACD_MACD_51':'MACD전저점돌파','RSI_과열진입':'RSI과열진입','RSI_과열이탈':'RSI과열이탈',
+    'ADX_ADX_53':'ADX과열진입','ADX_ADX_54':'ADX과열이탈','ADX_ADX_55':'ADX침체진입',
+    'ADX_ADX_56':'ADX침체이탈','ADX_ADX_57':'ADX전고점돌파','ADX_ADX_58':'ADX전저점돌파',
+    'ADX_ADX_59':'ADX최저값','ADX_ADX_60':'ADX매수세상승','ADX_ADX_61':'ADX매도세상승',
+    'VO_VO_62':'VO양수','VO_VO_64':'VO최저점상승',
+    'Pivot_Pivot_66':'피벗중심터치','Pivot_Pivot_67':'PivotR1터치','Pivot_Pivot_68':'PivotS1터치',
+    'Pivot과_BII_Pivot과_BII_69':'Pivot+BII','BWI_BWI_70':'BWI확장',
+    '이격도와_투자심리도_이격도와_투자심리도_71':'이격도투자심리',
+    '후행스팬_60이평선_터치_72':'후행스팬60이평선터치',
+    '기준선하락_BII상승_73':'기준선하락BII상승','정배열_저가매수_74':'정배열저가매수',
+    'TRANS_UP_히스트':'⚡추세전환+MACD증가','TRANS_UP_단독':'⚡추세전환(A등급)',
+    'TRANS_UP_기관D20':'⚡추세전환+기관매수','UP_히스트중기':'📊상승추세+MACD증가',
+    'UP_히스트_S8강화':'📊상승추세+S8매집','TRANS_UP_CCW_S2':'⚡추세전환+S2상승',
+    'UP_대차감소':'📊상승추세+대차감소','UP_기관D20':'📊상승추세+기관매수',
+}
+
+def _sig_kr(key):
+    return SIG_KR.get(key, key)
 
 app = Flask(__name__, static_folder=".", static_url_path="")
 CORS(app)
@@ -310,14 +359,40 @@ def get_holdings():
 
 @app.route("/api/signals", methods=["GET"])
 def get_signals():
-    """진입후보(추천종목) 조회 — 인증 필요"""
+    """진입후보(추천종목) 조회 — TOP10, 순번/칼마/한글지표명 포함"""
     token = request.args.get("token","")
     phone = request.args.get("phone","")
     if not _verify_user(token, phone):
         return jsonify({"error": "인증 실패"}), 401
 
-    data = _load(F_SIGNALS, default={"signals": [], "date": "", "timestamp": ""})
-    return jsonify(data)
+    data    = _load(F_SIGNALS, default={"signals": [], "date": "", "timestamp": ""})
+    sigs    = data.get("signals", [])
+
+    # 칼마 순 정렬 → TOP10
+    sigs.sort(key=lambda x: x.get("rank", 999))
+    top10 = sigs[:10]
+
+    # 한글 지표명 변환
+    result = []
+    for s in top10:
+        fired    = s.get("all_signals", s.get("signals_raw", []))
+        fired_kr = [_sig_kr(sg) for sg in fired]
+        result.append({
+            **s,
+            "rank":       s.get("rank", ""),
+            "name":       s.get("name", s.get("code","")),
+            "calmar":     round(float(s.get("calmar_rank", s.get("calmar", 0))), 0),
+            "signal_type_kr": _sig_kr(s.get("signal_type","")),
+            "signals_kr": fired_kr,
+            "signals_raw": fired,
+        })
+
+    return jsonify({
+        "date":      data.get("date",""),
+        "timestamp": data.get("timestamp",""),
+        "count":     len(result),
+        "signals":   result,
+    })
 
 
 # ════════════════════════════════════════════════════════
