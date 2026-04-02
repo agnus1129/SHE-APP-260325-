@@ -109,6 +109,13 @@ body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','M
 .pending-msg,.empty-msg{text-align:center;color:var(--muted);padding:40px 16px;font-size:14px;}
 .pos-text{color:var(--red);} .neg-text{color:var(--accent);} .neu-text{color:var(--muted);}
 .btn-analyze{width:100%;padding:14px;margin-top:20px;background:linear-gradient(135deg,#ff3d8f,#c026d3);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(255,61,143,0.35);}
+/* ── 손익장부 ── */
+.pnl-table{width:100%;border-collapse:collapse;font-size:12px;}
+.pnl-table th{padding:7px 5px;text-align:right;font-size:10px;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;font-weight:600;}
+.pnl-table th:first-child{text-align:left;}
+.pnl-table td{padding:6px 5px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;font-size:12px;}
+.pnl-table td:first-child{text-align:left;font-weight:700;font-size:12px;}
+.pnl-table tr:hover{background:rgba(255,61,143,0.04);}
 </style>
 </head>
 <body>
@@ -156,6 +163,7 @@ body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','M
     <button class="tab-btn active" onclick="switchTab('lookup')">🔍 조회종목</button>
     <button class="tab-btn" onclick="switchTab('holdings')">💼 보유종목</button>
     <button class="tab-btn" onclick="switchTab('signals')">⚡ 추천종목</button>
+    <button class="tab-btn" id="tab-btn-pnl" onclick="switchTab('pnl')" style="display:none;">📊 손익장부</button>
   </div>
   <div id="tab-lookup" class="tab-content active">
     <div class="lookup-form">
@@ -172,6 +180,10 @@ body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','M
   <div id="tab-signals" class="tab-content">
     <button class="refresh-btn" onclick="loadSignals()"><span id="signals-spin"></span>🔄 새로고침</button>
     <div id="signals-area"><div class="empty-msg">불러오는 중...</div></div>
+  </div>
+  <div id="tab-pnl" class="tab-content">
+    <button class="refresh-btn" onclick="loadPnL()"><span id="pnl-spin"></span>🔄 새로고침</button>
+    <div id="pnl-area"><div class="empty-msg">불러오는 중...</div></div>
   </div>
 </div>
 
@@ -223,6 +235,12 @@ function doLogin(){
       document.getElementById("login-screen").style.display="none";
       document.getElementById("app").style.display="flex";
       loadHoldings();loadSignals();
+      // 관리자 전용: 손익장부 탭
+      var _admNames=["관리자","박상규","상규"];
+      if(_admNames.some(function(n){return d.holder.includes(n);})){
+        document.getElementById("tab-btn-pnl").style.display="";
+        loadPnL();
+      }
     });
   }).catch(function(){
     document.querySelector(".btn-primary").textContent="입장하기";
@@ -249,7 +267,7 @@ document.addEventListener("keydown",function(e){
 
 // 탭
 function switchTab(name){
-  var tabs=["lookup","holdings","signals"];
+  var tabs=["lookup","holdings","signals","pnl"];
   document.querySelectorAll(".tab-btn").forEach(function(b,i){b.classList.toggle("active",tabs[i]===name);});
   document.querySelectorAll(".tab-content").forEach(function(c){c.classList.remove("active");});
   document.getElementById("tab-"+name).classList.add("active");
@@ -808,6 +826,103 @@ function closeModalOuter(e){if(e.target===document.getElementById("modal"))close
 
 // 자동 새로고침 3분
 setInterval(function(){if(AUTH.token&&AUTH.phone){loadHoldings();loadSignals();}},180000);
+
+// ════════════════════════════════════════
+// ■ 손익장부 (관리자 전용)
+// ════════════════════════════════════════
+var PNL_INIT=[
+  {id:"r_init",date:"2026-03-23",투자원금:199100,입금:0,출금:0,매입:0,청산:0,수수료:0,세금:0,메모:"계좌 개설 — 투자원금 199,100원"},
+  {id:"r_324",date:"2026-03-24",투자원금:0,입금:0,출금:0,매입:153020,청산:0,수수료:23,세금:0,메모:"대우건설@16,420/브이엠@46,400/씨에스윈드@66,100/HDC@24,100"},
+  {id:"r_325",date:"2026-03-25",투자원금:0,입금:0,출금:0,매입:299650,청산:298180,수수료:90,세금:537,메모:"6청산(씨에스↓/브이엠↑/대우↑/두산↑/HDC↓/브이엠SL)+6재진입"},
+  {id:"r_327",date:"2026-03-27",투자원금:0,입금:0,출금:0,매입:43300,청산:120840,수수료:25,세금:218,메모:"씨에스SL/대우TRAIL/브이엠TRAIL 청산+브이엠@43,300재진입"},
+  {id:"r_330",date:"2026-03-30",투자원금:0,입금:0,출금:0,매입:22302,청산:21350,수수료:7,세금:38,메모:"HDC현대산업개발 SL -4.27%"},
+  {id:"r_331",date:"2026-03-31",투자원금:0,입금:0,출금:0,매입:267100,청산:264150,수수료:80,세금:475,메모:"브이엠SL/태웅TRAIL/두산TRAIL/HDC SL/씨에스윈드SL"},
+];
+
+function _pnlDay(r){
+  if(!(r.청산||0)&&(r.매입||0)>0)return 0;
+  return (r.청산||0)-(r.매입||0)-(r.수수료||0)-(r.세금||0);
+}
+
+function loadPnL(){
+  var area=document.getElementById("pnl-area");
+  var spin=document.getElementById("pnl-spin");
+  if(spin)spin.innerHTML='<span class="spinner"></span>';
+  fetch(BASE+"/api/pnl/ledger?token="+encodeURIComponent(AUTH.token)+"&phone="+encodeURIComponent(AUTH.phone))
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(spin)spin.innerHTML="";
+      var recs=d.records||PNL_INIT;
+      try{localStorage.setItem("she_pnl",JSON.stringify(recs));}catch(e){}
+      renderPnL(recs);
+    })
+    .catch(function(){
+      if(spin)spin.innerHTML="";
+      var cached=null;
+      try{cached=JSON.parse(localStorage.getItem("she_pnl"));}catch(e){}
+      renderPnL(cached||PNL_INIT);
+    });
+}
+
+function renderPnL(recs){
+  var area=document.getElementById("pnl-area");
+  if(!area)return;
+  var sorted=[].slice.call(recs).sort(function(a,b){return a.date.localeCompare(b.date);});
+  var cum=0,prin=0;
+  var proc=sorted.map(function(r){
+    var d=_pnlDay(r);cum+=d;
+    prin+=(r.투자원금||0)+(r.입금||0)-(r.출금||0);
+    return Object.assign({},r,{_d:d,_cum:cum,_prin:prin,_roi:prin>0?cum/prin*100:0});
+  });
+  var last=proc[proc.length-1]||{};
+  var totalPnL=last._cum||0;var totalPrin=last._prin||0;
+  var roi=totalPrin>0?totalPnL/totalPrin*100:0;
+  var totalBuy=recs.reduce(function(s,r){return s+(r.매입||0);},0);
+  var totalSell=recs.reduce(function(s,r){return s+(r.청산||0);},0);
+  var totalFee=recs.reduce(function(s,r){return s+(r.수수료||0)+(r.세금||0);},0);
+  var p=function(n){return Math.round(Math.abs(n)).toLocaleString();};
+  var sg=function(n){return n>=0?"+":"−";};
+  var cl=function(n){return n>0?"var(--green)":n<0?"var(--red)":"var(--muted)";};
+  var pp=function(n){return(n>=0?"+":"")+n.toFixed(2)+"%";};
+  var h='';
+  // 요약 카드
+  h+='<div class="summary-grid" style="margin-bottom:10px;">';
+  h+='<div class="summary-cell"><div class="s-label">누적 실현손익</div><div class="s-val" style="font-size:15px;color:'+cl(totalPnL)+'">'+sg(totalPnL)+p(totalPnL)+'원</div></div>';
+  h+='<div class="summary-cell"><div class="s-label">수익률</div><div class="s-val" style="font-size:15px;color:'+cl(roi)+'">'+pp(roi)+'</div></div>';
+  h+='<div class="summary-cell"><div class="s-label">현재자산 추정</div><div class="s-val" style="font-size:15px;">'+p(totalPrin+totalPnL)+'원</div></div>';
+  h+='<div class="summary-cell"><div class="s-label">투자원금</div><div class="s-val" style="font-size:15px;">'+p(totalPrin)+'원</div></div>';
+  h+='</div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px;">';
+  h+='<div class="summary-cell"><div class="s-label">총 매입</div><div class="s-val" style="font-size:12px;">'+p(totalBuy)+'원</div></div>';
+  h+='<div class="summary-cell"><div class="s-label">총 청산</div><div class="s-val" style="font-size:12px;">'+p(totalSell)+'원</div></div>';
+  h+='<div class="summary-cell"><div class="s-label">수수료+세금</div><div class="s-val" style="font-size:12px;">'+p(totalFee)+'원</div></div>';
+  h+='</div>';
+  // 테이블
+  h+='<div style="overflow-x:auto;"><table class="pnl-table"><thead><tr>';
+  ['날짜','매입','청산','수수료','세금','당일손익','누적손익','수익률','메모'].forEach(function(c){
+    h+='<th'+(c==='날짜'?' style="text-align:left"':'')+'>'+c+'</th>';
+  });
+  h+='</tr></thead><tbody>';
+  [].slice.call(proc).reverse().forEach(function(r){
+    var isBuy=!(r.청산||0)&&(r.매입||0)>0;
+    var hasPrin=(r.투자원금||0)+(r.입금||0)>0;
+    h+='<tr>';
+    h+='<td>'+r.date+'</td>';
+    h+='<td>'+((r.매입||0)?p(r.매입):"—")+'</td>';
+    h+='<td>'+((r.청산||0)?p(r.청산):"—")+'</td>';
+    h+='<td style="color:var(--muted)">'+((r.수수료||0)?p(r.수수료):"—")+'</td>';
+    h+='<td style="color:var(--muted)">'+((r.세금||0)?p(r.세금):"—")+'</td>';
+    h+='<td style="font-weight:700;color:'+cl(r._d)+'">'+(hasPrin?'<span style="color:var(--gold);font-size:10px;">자본투입</span>':isBuy?'<span style="color:var(--muted);font-size:10px;">미실현</span>':(r._d===0?"—":sg(r._d)+p(r._d)+'원'))+'</td>';
+    h+='<td style="font-weight:800;color:'+cl(r._cum)+'">'+sg(r._cum)+p(r._cum)+'원</td>';
+    h+='<td style="color:'+cl(r._roi)+'">'+pp(r._roi)+'</td>';
+    h+='<td style="color:var(--muted);max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(r.메모||"—")+'</td>';
+    h+='</tr>';
+  });
+  h+='</tbody></table></div>';
+  h+='<div style="font-size:10px;color:var(--muted);text-align:center;margin-top:10px;">계좌 6218-0331 · SHE 자동매매 · 3분마다 자동갱신</div>';
+  area.innerHTML=h;
+}
+
 </script>
 </body>
 </html>
