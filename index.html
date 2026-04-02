@@ -164,6 +164,7 @@ body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','M
     <button class="tab-btn" onclick="switchTab('holdings')">💼 보유종목</button>
     <button class="tab-btn" onclick="switchTab('signals')">⚡ 추천종목</button>
     <button class="tab-btn" id="tab-btn-pnl" onclick="switchTab('pnl')" style="display:none;">📊 손익장부</button>
+    <button class="tab-btn" id="tab-btn-virtual" onclick="switchTab('virtual')" style="display:none;">🧪 가상포트</button>
   </div>
   <div id="tab-lookup" class="tab-content active">
     <div class="lookup-form">
@@ -184,6 +185,16 @@ body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','M
   <div id="tab-pnl" class="tab-content">
     <button class="refresh-btn" onclick="loadPnL()"><span id="pnl-spin"></span>🔄 새로고침</button>
     <div id="pnl-area"><div class="empty-msg">불러오는 중...</div></div>
+  </div>
+  <div id="tab-virtual" class="tab-content">
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <input type="text" id="virt-date" placeholder="날짜 YYYYMMDD" maxlength="8"
+             style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;padding:10px 12px;outline:none;">
+      <input type="text" id="virt-code" placeholder="종목코드" maxlength="6"
+             style="width:100px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;padding:10px 12px;outline:none;">
+      <button class="btn-search" onclick="loadVirtual()">조회</button>
+    </div>
+    <div id="virtual-area"><div class="empty-msg">날짜 또는 종목코드로 조회하세요.</div></div>
   </div>
 </div>
 
@@ -239,6 +250,7 @@ function doLogin(){
       var _admNames=["관리자","박상규","상규"];
       if(_admNames.some(function(n){return d.holder.includes(n);})){
         document.getElementById("tab-btn-pnl").style.display="";
+        document.getElementById("tab-btn-virtual").style.display="";
         loadPnL();
       }
     });
@@ -267,7 +279,7 @@ document.addEventListener("keydown",function(e){
 
 // 탭
 function switchTab(name){
-  var tabs=["lookup","holdings","signals","pnl"];
+  var tabs=["lookup","holdings","signals","pnl","virtual"];
   document.querySelectorAll(".tab-btn").forEach(function(b,i){b.classList.toggle("active",tabs[i]===name);});
   document.querySelectorAll(".tab-content").forEach(function(c){c.classList.remove("active");});
   document.getElementById("tab-"+name).classList.add("active");
@@ -823,6 +835,98 @@ function toggleLookupTrend(idx){
 // 모달
 function closeModal(){document.getElementById("modal").classList.remove("open");}
 function closeModalOuter(e){if(e.target===document.getElementById("modal"))closeModal();}
+
+// ════════════════════════════════════════
+// ■ 가상 포트폴리오 (관리자 전용)
+// ════════════════════════════════════════
+function loadVirtual(){
+  var area=document.getElementById("virtual-area");
+  var dateVal=document.getElementById("virt-date").value.trim();
+  var codeVal=document.getElementById("virt-code").value.trim();
+  while(codeVal.length>0&&codeVal.length<6)codeVal="0"+codeVal;
+  if(!dateVal&&(!codeVal||codeVal==="000000")){
+    area.innerHTML='<div class="empty-msg">날짜(YYYYMMDD) 또는 종목코드를 입력하세요.</div>';
+    return;
+  }
+  area.innerHTML='<div class="pending-msg"><span class="spinner"></span>조회 중...</div>';
+  var qs=[];
+  if(dateVal)qs.push("date="+encodeURIComponent(dateVal));
+  if(codeVal&&codeVal!=="000000")qs.push("code="+encodeURIComponent(codeVal));
+  fetch(BASE+"/api/virtual/query?"+qs.join("&"),{
+    headers:{"X-Admin-Key":"SHE_ADMIN_2026"}
+  }).then(function(r){return r.json();})
+  .then(function(d){renderVirtual(d,dateVal,codeVal);})
+  .catch(function(){area.innerHTML='<div class="empty-msg">조회 실패. 다시 시도해 주세요.</div>';});
+}
+
+function renderVirtual(data, dateVal, codeVal){
+  var area=document.getElementById("virtual-area");
+  var entries=data.entries||[];
+  if(!entries.length){
+    area.innerHTML='<div class="empty-msg">해당 조건의 가상진입 데이터가 없습니다.</div>';
+    return;
+  }
+  var p=function(n){return Math.abs(Math.round(n)).toLocaleString();};
+  var cl=function(v){return v>0?"pos-text":v<0?"neg-text":"neu-text";};
+  var sg=function(v){return v>=0?"+":"−";};
+  var h='<div style="font-size:12px;color:var(--muted);margin-bottom:10px;">';
+  h+=data.count+'건 — D+3~D+9 최고 수익률 순 정렬';
+  if(data.updated_at)h+='  (갱신: '+data.updated_at.slice(0,16).replace("T"," ")+')';
+  h+='</div>';
+
+  entries.forEach(function(e,idx){
+    var dr=e.d_results||{};
+    var isTop=idx===0;
+    var border=isTop?"border:1px solid var(--gold)":"border:1px solid var(--border)";
+    var matchBadge=e._match?'<span style="font-size:10px;background:rgba(255,61,143,0.15);color:var(--accent);border-radius:4px;padding:1px 6px;margin-left:6px;">'+e._match+'</span>':"";
+    h+='<div style="background:var(--surface);'+border+';border-radius:var(--radius);padding:14px;margin-bottom:10px;">';
+    // 헤더
+    if(isTop)h+='<div style="font-size:10px;color:var(--gold);font-weight:700;margin-bottom:6px;">🏆 최고 수익률</div>';
+    h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">';
+    h+='<div>';
+    h+='<div style="font-size:16px;font-weight:800;">'+e.name+'('+e.code+')'+matchBadge+'</div>';
+    h+='<div style="font-size:11px;color:var(--muted);">칼마 '+e.calmar.toFixed(0)+' | '+e['rank']+'위 | 진입일 '+e.entry_date.slice(0,4)+'/'+e.entry_date.slice(4,6)+'/'+e.entry_date.slice(6)+'</div>';
+    h+='</div>';
+    h+='<div style="text-align:right;">';
+    h+='<div style="font-size:13px;color:var(--muted);">진입가</div>';
+    h+='<div style="font-size:18px;font-weight:800;">'+p(e.entry_price)+'원</div>';
+    h+='</div></div>';
+
+    // D+3~D+9 결과 그리드
+    var days=["D3","D4","D5","D6","D7","D8","D9"];
+    h+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">';
+    days.forEach(function(dk){
+      var dv=dr[dk];
+      var isBest=e.best_day===dk;
+      var bg=isBest?"rgba(227,179,65,0.15)":"var(--card)";
+      var brd=isBest?"border:1px solid rgba(227,179,65,0.5)":"border:1px solid var(--border)";
+      h+='<div style="background:'+bg+';'+brd+';border-radius:8px;padding:6px 2px;text-align:center;">';
+      h+='<div style="font-size:9px;color:'+(isBest?"var(--gold)":"var(--muted)")+';font-weight:700;">'+dk+(isBest?"★":"")+'</div>';
+      if(dv){
+        var pct=dv.pnl_pct;
+        h+='<div style="font-size:11px;font-weight:800;color:'+(pct>=0?"var(--green)":"var(--red)")+';">'+(pct>=0?"+":"")+pct.toFixed(1)+'%</div>';
+        h+='<div style="font-size:9px;color:var(--muted);">'+p(dv.close)+'원</div>';
+      }else{
+        h+='<div style="font-size:10px;color:var(--border);">─</div>';
+        h+='<div style="font-size:9px;color:var(--border);">─</div>';
+      }
+      h+='</div>';
+    });
+    h+='</div>';
+
+    // 최고 수익 요약
+    if(e.best_day&&e.best_pnl_pct!=null){
+      var bpct=e.best_pnl_pct;
+      h+='<div style="margin-top:8px;padding:6px 10px;background:rgba(227,179,65,0.06);border-radius:8px;display:flex;justify-content:space-between;">';
+      h+='<span style="font-size:11px;color:var(--muted);">'+e.best_day+' 최고</span>';
+      h+='<span style="font-size:13px;font-weight:800;color:'+(bpct>=0?"var(--green)":"var(--red)")+';">';
+      h+=sg(bpct)+p(Math.abs(e.best_pnl||0))+'원  ('+(bpct>=0?"+":"")+bpct.toFixed(2)+'%)</span>';
+      h+='</div>';
+    }
+    h+='</div>';
+  });
+  area.innerHTML=h;
+}
 
 // 자동 새로고침 3분
 setInterval(function(){if(AUTH.token&&AUTH.phone){loadHoldings();loadSignals();}},180000);

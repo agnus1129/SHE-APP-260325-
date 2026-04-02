@@ -33,6 +33,8 @@ F_HOLDINGS  = DATA_DIR / "holdings.json"
 F_SIGNALS   = DATA_DIR / "signals.json"
 F_LOOKUP_Q  = DATA_DIR / "lookup_queue.json"
 F_LOOKUP_R  = DATA_DIR / "lookup_results.json"
+F_VIRTUAL   = DATA_DIR / "virtual_portfolio.json"
+F_PNL       = DATA_DIR / "pnl_ledger.json"
 
 # ── 시그널 한글명 ─────────────────────────────────────────
 SIG_KR = {
@@ -459,6 +461,147 @@ def lookup_result():
         return jsonify({"status": "pending", "message": "분석 대기 중..."})
 
     return jsonify({"status": "ready", "code": code, **item})
+
+
+# ════════════════════════════════════════════════════════
+# ■ [PNL] 손익 장부 (관리자 전용)
+# ════════════════════════════════════════════════════════
+
+@app.route("/api/push/pnl", methods=["POST"])
+@require_push_key
+def push_pnl():
+    """
+    SHE가 손익 장부 레코드 전송 (청산 발생 시 또는 자본 변동 시)
+    Body: {
+      "date": "2026-04-02",
+      "투자원금": 0, "입금": 0, "출금": 0,
+      "매입": 267100, "청산": 264150,
+      "수수료": 80, "세금": 475,
+      "메모": "씨에스윈드TRAIL/HDC SL",
+      "transactions": []
+    }
+    id = date + 수신시각 밀리초로 자동 부여 (같은 날 복수 청산 지원)
+    """
+    data = request.get_json() or {}
+    pnl  = _load(F_PNL, default={"records": []})
+    recs = pnl.get("records", [])
+
+    # id 자동 부여 (날짜+타임스탬프 밀리초)
+    ts   = datetime.now()
+    rid  = f"r_{ts.strftime('%Y%m%d%H%M%S%f')[:17]}"
+    rec  = {
+        "id":       rid,
+        "date":     data.get("date", ts.strftime("%Y-%m-%d")),
+        "투자원금": int(data.get("투자원금", 0) or 0),
+        "입금":     int(data.get("입금", 0) or 0),
+        "출금":     int(data.get("출금", 0) or 0),
+        "매입":     int(data.get("매입", 0) or 0),
+        "청산":     int(data.get("청산", 0) or 0),
+        "수수료":   int(data.get("수수료", 0) or 0),
+        "세금":     int(data.get("세금", 0) or 0),
+        "메모":     data.get("메모", ""),
+        "transactions": data.get("transactions", []),
+        "created_at":   ts.isoformat(),
+    }
+    # 같은 id 중복 방지 (재전송 등)
+    recs = [r for r in recs if r.get("id") != rid]
+    recs.append(rec)
+    # 날짜 오름차순 정렬
+    recs.sort(key=lambda r: (r.get("date",""), r.get("created_at","")))
+    _save(F_PNL, {"records": recs, "updated_at": ts.isoformat()})
+    return jsonify({"status": "ok", "id": rid})
+
+
+@app.route("/api/pnl/ledger", methods=["GET"])
+def pnl_ledger():
+    """
+    손익 장부 조회 (관리자 인증 필요)
+    Query: token=xxx&phone=xxx
+    """
+    token = request.args.get("token", "")
+    phone = request.args.get("phone", "")
+    user  = _verify_user(token, phone)
+    if not user:
+        return jsonify({"error": "인증 실패"}), 401
+    # 관리자 여부 확인
+    holder = user.get("holder", "")
+    if not any(n in holder for n in ["관리자", "박상규", "상규"]):
+        return jsonify({"error": "관리자 전용"}), 403
+    pnl = _load(F_PNL, default={"records": []})
+    return jsonify(pnl)
+
+
+# ════════════════════════════════════════════════════════
+# ■ [VIRTUAL] 가상 포트폴리오 (관리자 전용)
+# ════════════════════════════════════════════════════════
+
+@app.route("/api/push/virtual", methods=["POST"])
+@require_push_key
+def push_virtual():
+    """
+    SHE가 가상포트폴리오 데이터 전송 (17:00 신호스캔 후)
+    Body: {"date": "20260402", "entries": [...]}
+    entries 는 전체를 덮어쓰지 않고 id 기준 upsert
+    """
+    data    = request.get_json() or {}
+    entries = data.get("entries", [])
+    vdata   = _load(F_VIRTUAL, default={"entries": {}})
+    tbl     = vdata.get("entries", {})
+    for e in entries:
+        eid = e.get("id", "")
+        if eid:
+            tbl[eid] = e
+    vdata["entries"]    = tbl
+    vdata["updated_at"] = datetime.now().isoformat()
+    _save(F_VIRTUAL, vdata)
+    return jsonify({"status": "ok", "count": len(entries)})
+
+
+@app.route("/api/virtual/query", methods=["GET"])
+@require_admin_key
+def virtual_query():
+    """
+    가상포트폴리오 조회 (관리자 전용)
+    Query params:
+      date=YYYYMMDD  → 해당 날짜 진입 종목 + 해당 날짜 보유 중인 종목 모두
+      code=XXXXXX    → 해당 종목의 모든 가상진입 이력
+    응답: D+3 최고 수익률 종목이 맨 앞
+    """
+    vdata   = _load(F_VIRTUAL, default={"entries": {}})
+    tbl     = vdata.get("entries", {})
+    all_e   = list(tbl.values())
+
+    date_q  = request.args.get("date", "").strip()
+    code_q  = request.args.get("code", "").strip().zfill(6)
+
+    if date_q:
+        result = []
+        for e in all_e:
+            edate = e.get("entry_date", "")
+            # 진입일 일치
+            if edate == date_q:
+                result.append({**e, "_match": "진입일"})
+                continue
+            # 해당일이 D+1~D+9 보유기간 내인지 확인
+            dr = e.get("d_results", {})
+            for dk, dv in dr.items():
+                if dv.get("date", "") == date_q:
+                    result.append({**e, "_match": f"{dk} 보유중"})
+                    break
+    elif code_q and code_q != "000000":
+        result = [e for e in all_e if e.get("code", "") == code_q]
+    else:
+        result = all_e
+
+    # D+3~D+9 중 최고 수익률 기준 내림차순 정렬
+    def _best_pct(e):
+        dr = e.get("d_results", {})
+        if not dr: return -9999
+        return max((v.get("pnl_pct", -9999) for v in dr.values()), default=-9999)
+
+    result.sort(key=_best_pct, reverse=True)
+    return jsonify({"count": len(result), "entries": result,
+                    "updated_at": vdata.get("updated_at", "")})
 
 
 # ════════════════════════════════════════════════════════
