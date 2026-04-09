@@ -610,42 +610,30 @@ def virtual_query():
 
 @app.route("/api/name", methods=["GET"])
 def get_stock_name():
-    """종목코드 → 종목명 조회 (signals → holdings → virtual → pnl 순 탐색)"""
+    """종목코드 → 종목명 조회 (signals → holdings 순으로 탐색)"""
     code = request.args.get("code", "").strip().zfill(6)
     if not code or code == "000000":
         return jsonify({"code": code, "name": ""})
     name = ""
-    # 1. signals
+    # 1. signals에서 탐색
     try:
-        for s in _load(F_SIGNALS, default={}).get("signals", []):
+        sigs = _load(F_SIGNALS, default={})
+        for s in sigs.get("signals", []):
             if s.get("code") == code:
-                name = s.get("name", ""); break
-    except Exception: pass
-    # 2. holdings
+                name = s.get("name", "")
+                break
+    except Exception:
+        pass
+    # 2. holdings에서 탐색
     if not name:
         try:
-            for h in _load(F_HOLDINGS, default={}).get("holdings", []):
+            holdings = _load(F_HOLDINGS, default={})
+            for h in holdings.get("holdings", []):
                 if h.get("code") == code:
-                    name = h.get("name", ""); break
-        except Exception: pass
-    # 3. virtual_portfolio
-    if not name:
-        try:
-            virt = _load(F_VIRTUAL, default={})
-            for entries in virt.values():
-                if isinstance(entries, list):
-                    for e in entries:
-                        if e.get("code") == code:
-                            name = e.get("name", ""); break
-                if name: break
-        except Exception: pass
-    # 4. pnl_ledger
-    if not name:
-        try:
-            for e in _load(F_PNL, default={}).get("entries", []):
-                if e.get("code") == code:
-                    name = e.get("name", ""); break
-        except Exception: pass
+                    name = h.get("name", "")
+                    break
+        except Exception:
+            pass
     return jsonify({"code": code, "name": name})
 
 
