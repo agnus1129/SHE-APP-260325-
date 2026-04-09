@@ -83,7 +83,7 @@ body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','M
 .sig-fired{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
 .sig-tag{font-size:10px;background:rgba(255,61,143,0.1);color:var(--accent2);border:1px solid rgba(255,61,143,0.2);border-radius:4px;padding:2px 6px;}
 /* 모달 내 섹션 */
-.modal-section{font-size:13px;color:var(--accent2);font-weight:700;margin:14px 0 8px;}
+.modal-section{font-size:18px;color:var(--accent2);font-weight:800;margin:16px 0 10px;}
 .sig-summary-box{background:rgba(227,179,65,0.06);border:1px solid rgba(227,179,65,0.2);border-radius:10px;padding:12px;margin-bottom:4px;font-size:14px;line-height:1.8;color:var(--text);}
 .sig-green-tag{font-size:12px;background:rgba(63,185,80,0.12);color:var(--green);border:1px solid rgba(63,185,80,0.3);border-radius:4px;padding:3px 8px;display:inline-block;margin:3px 2px;}
 .sig-red-tag{font-size:12px;background:rgba(248,81,73,0.12);color:var(--red);border:1px solid rgba(248,81,73,0.3);border-radius:4px;padding:3px 8px;display:inline-block;margin:3px 2px;}
@@ -777,9 +777,9 @@ function showSignal(key){
   // ── 헤더 ──
   html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">';
   html+='<div>';
-  html+='<div style="font-size:11px;color:var(--gold);margin-bottom:3px;">'+rank+'위 진입 후보</div>';
-  html+='<div style="font-size:21px;font-weight:900;">'+(s.name||s.code)+'</div>';
-  html+='<div style="font-size:12px;color:var(--muted);">'+s.code+' | '+curPrice+'</div>';
+  html+='<div style="font-size:18px;font-weight:800;color:var(--gold);margin-bottom:5px;">'+rank+'위 진입 후보</div>';
+  html+='<div style="font-size:28px;font-weight:900;">'+(s.name||s.code)+'</div>';
+  html+='<div style="font-size:17px;color:var(--muted);">'+s.code+' | '+curPrice+'</div>';
   html+='</div>';
   html+='<div style="text-align:right;">';
   html+='<div class="signal-grade grade-'+grade+'">'+grade+'</div>';
@@ -792,8 +792,8 @@ function showSignal(key){
   [['월봉',scM],['주봉',scW],['일봉',scD]].forEach(function(t){
     var sc=t[1]; var clr=tClr(sc);
     html+='<div style="flex:1;background:var(--card);border-radius:8px;padding:8px;text-align:center;">';
-    html+='<div style="font-size:10px;color:var(--muted);">'+t[0]+'</div>';
-    html+='<div style="font-size:18px;font-weight:900;color:'+clr+'">'+(sc?sc+'/13':'─')+'</div>';
+    html+='<div style="font-size:16px;font-weight:700;color:var(--muted);">'+t[0]+'</div>';
+    html+='<div style="font-size:26px;font-weight:900;color:'+clr+'">'+(sc?sc+'/13':'─')+'</div>';
     if(sc){html+='<div style="background:var(--border);border-radius:4px;height:3px;margin-top:4px;"><div style="background:'+clr+';width:'+Math.round(sc/13*100)+'%;height:3px;border-radius:4px;"></div></div>';}
     html+='</div>';
   });
