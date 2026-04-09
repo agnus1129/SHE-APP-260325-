@@ -169,7 +169,9 @@ body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','M
   <div id="tab-lookup" class="tab-content active">
     <div class="lookup-form">
       <input type="text" id="lookup-code" placeholder="종목코드 (예: 005930)" maxlength="6"
-        oninput="autoFillName(this.value)">
+        oninput="autoFillName(this.value,'lookup-name')"
+        onkeydown="if(event.key==='Enter')requestLookup()"
+        style="flex:1;">
       <input type="text" id="lookup-name" placeholder="종목명" style="max-width:110px;">
       <button class="btn-search" onclick="requestLookup()">분석</button>
     </div>
@@ -188,11 +190,14 @@ body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','M
     <div id="pnl-area"><div class="empty-msg">불러오는 중...</div></div>
   </div>
   <div id="tab-virtual" class="tab-content">
-    <div style="display:flex;gap:8px;margin-bottom:12px;">
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
       <input type="text" id="virt-date" placeholder="날짜 YYYYMMDD" maxlength="8"
              style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;padding:10px 12px;outline:none;">
       <input type="text" id="virt-code" placeholder="종목코드" maxlength="6"
+             oninput="autoFillName(this.value,'virt-name')"
              style="width:100px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;padding:10px 12px;outline:none;">
+      <input type="text" id="virt-name" placeholder="종목명" readonly
+             style="width:100px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--gold);font-size:14px;padding:10px 12px;outline:none;">
       <button class="btn-search" onclick="loadVirtual()">조회</button>
     </div>
     <div id="virtual-area"><div class="empty-msg">날짜 또는 종목코드로 조회하세요.</div></div>
