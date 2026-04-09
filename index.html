@@ -168,7 +168,8 @@ body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','M
   </div>
   <div id="tab-lookup" class="tab-content active">
     <div class="lookup-form">
-      <input type="text" id="lookup-code" placeholder="종목코드 (예: 005930)" maxlength="6">
+      <input type="text" id="lookup-code" placeholder="종목코드 (예: 005930)" maxlength="6"
+        oninput="autoFillName(this.value)">
       <input type="text" id="lookup-name" placeholder="종목명" style="max-width:110px;">
       <button class="btn-search" onclick="requestLookup()">분석</button>
     </div>
@@ -211,6 +212,18 @@ var BASE = "";
 var AUTH = {token:"",phone:"",holder:""};
 var urlToken = new URLSearchParams(location.search).get("token") || "";
 var lookupTimer = null;
+
+function autoFillName(code){
+  if(code.length !== 6) return;
+  fetch(BASE+"/api/name?code="+encodeURIComponent(code))
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.name){
+        document.getElementById("lookup-name").value = d.name;
+      }
+    }).catch(function(){});
+}
+
 var holdingData = {};
 var signalData = {};
 
@@ -400,26 +413,34 @@ function renderLookup(code,name,r){
     return r;
   }
 
-  if(autoSigs.length||greenSigs.length||redSigs.length){
+  if(autoSigs.length||greenSigs.length){
     h+='<div class="card">';
     h+='<div style="font-size:16px;font-weight:800;margin-bottom:4px;">🔬 74개 지표 분석 결과</div>';
-    h+='<div style="font-size:13px;color:var(--muted);margin-bottom:14px;">자동매매 시그널은 SHE 시스템이 내일 매수 후보로 선정한 신호입니다</div>';
+    h+='<div style="font-size:13px;color:var(--muted);margin-bottom:14px;">SHE 시스템이 감지한 기술적 신호입니다</div>';
     if(autoSigs.length){
       h+='<div style="margin-bottom:16px;">';
-      h+='<div style="font-size:14px;font-weight:700;color:var(--gold);margin-bottom:8px;">⚡ 자동매매 진입 신호 ('+autoSigs.length+'개) — SHE 매수 후보 선정</div>';
-      autoSigs.forEach(function(s){h+=indCard(s,"rgba(227,179,65,0.6)","var(--gold)","rgba(227,179,65,0.07)");});
+      h+='<div style="font-size:14px;font-weight:700;color:var(--gold);margin-bottom:8px;">⚡ 자동매매 진입신호 ('+autoSigs.length+'개) — SHE 매수 후보 선정</div>';
+      autoSigs.forEach(function(s){
+        var meta=IND_META[s]||{}; var nm=meta.name||s;
+        var desc=SIG_DESC[nm]||meta.desc||'';
+        h+='<div style="background:rgba(227,179,65,0.07);border:1px solid rgba(227,179,65,0.5);border-radius:10px;padding:12px;margin-bottom:8px;">';
+        h+='<div style="color:var(--gold);font-size:15px;font-weight:800;margin-bottom:'+(desc?'6px':'0')+';">⚡ '+nm+'</div>';
+        if(desc)h+='<div style="color:var(--text);font-size:13px;line-height:1.7;">'+desc+'</div>';
+        h+='</div>';
+      });
       h+='</div>';
     }
     if(greenSigs.length){
-      h+='<div style="margin-bottom:16px;">';
+      h+='<div style="margin-bottom:8px;">';
       h+='<div style="font-size:14px;font-weight:700;color:var(--green);margin-bottom:8px;">✅ 긍정 신호 ('+greenSigs.length+'개) — 매수에 유리한 조건</div>';
-      greenSigs.forEach(function(s){h+=indCard(s,"rgba(63,185,80,0.5)","var(--green)","rgba(63,185,80,0.07)");});
-      h+='</div>';
-    }
-    if(redSigs.length){
-      h+='<div>';
-      h+='<div style="font-size:14px;font-weight:700;color:var(--red);margin-bottom:8px;">🚫 경고 신호 ('+redSigs.length+'개) — 주의가 필요한 조건</div>';
-      redSigs.forEach(function(s){h+=indCard(s,"rgba(248,81,73,0.5)","var(--red)","rgba(248,81,73,0.07)");});
+      greenSigs.forEach(function(s){
+        var meta=IND_META[s]||{}; var nm=meta.name||s;
+        var desc=SIG_DESC[nm]||meta.desc||'';
+        h+='<div style="background:rgba(63,185,80,0.07);border:1px solid rgba(63,185,80,0.4);border-radius:10px;padding:12px;margin-bottom:8px;">';
+        h+='<div style="color:var(--green);font-size:15px;font-weight:800;margin-bottom:'+(desc?'6px':'0')+';">✅ '+nm+'</div>';
+        if(desc)h+='<div style="color:var(--text);font-size:13px;line-height:1.7;">'+desc+'</div>';
+        h+='</div>';
+      });
       h+='</div>';
     }
     h+='</div>';
@@ -435,7 +456,8 @@ function renderLookup(code,name,r){
   h+='• <b>RSI</b>: 0~100 사이 강도 지표. 50 이상=매수세 우세, 70 이상=과열, 30 이하=과매도<br>';
   h+='• <b>ADX</b>: 추세 강도. 25 이상이면 뚜렷한 추세, 이하면 횡보<br>';
   h+='• <b>기관순매수</b>: 기관투자자(펀드·보험 등)가 최근 순매수 중인지 여부<br>';
-  h+='• <b>자동매매 신호</b>: SHE 시스템이 내일 매수 후보로 판단한 기술적 조건';
+  h+='• <b>⚡ 자동매매 진입신호</b>: SHE 시스템이 내일 매수 후보로 선정한 핵심 기술적 조건<br>';
+  h+='• <b>✅ 긍정 신호</b>: 매수에 유리한 보조 기술적 조건 — 진입 확신도를 높여줌';
   h+='</div></div>';
 
   // ── 네이버 차트 링크 ──
@@ -637,6 +659,47 @@ var SIG_LABELS={
   "UP_기관D20":       "📊 상승추세 + 기관 20일 매수중",
 };
 
+// 초보자용 지표 설명
+var SIG_DESC={
+  "기준선 고점주의":        "📌 기준선이 26일 최고치를 기록 중. 중기 추세가 절정에 가까워 반등 가능성 높음.",
+  "전환선 고점주의":        "📌 전환선이 9일 최고치 기록. 단기 추세 정점 — 눌림 후 재상승 기대.",
+  "전환선이 10일 이평선 돌파": "📌 전환선이 10일 이평선 위로 올라섰음. 단기 모멘텀 회복 신호.",
+  "10일과 60일 이평선 정배열": "📌 10일선이 60일선 위에 있는 정배열 상태. 중기 상승 흐름 유지 중.",
+  "5일 이평선 아래":        "📌 주가가 5일선 아래로 눌렸음. 단기 과매도 — 반등 매수 기회.",
+  "5일 이평선 위":          "📌 주가가 5일선 위에 있음. 초단기 상승 흐름 유지 중.",
+  "Pivot 중심값 터치":      "📌 당일 캔들이 피벗 중심선에 닿았음. 핵심 지지·저항 확인 구간 (칼마 24.55 — 최강).",
+  "Pivot R1 터치":          "📌 저항선(R1)에 캔들이 닿았음. 저항 돌파 시 추가 상승 기대.",
+  "Pivot S1 터치":          "📌 지지선(S1)에 캔들이 닿았음. 지지 확인 후 반등 기대 (칼마 18.47).",
+  "Pivot과 BII":            "📌 피벗 지지 + 기관 매수 동반. 스마트머니가 받쳐주는 구간.",
+  "60일 종이격 상승":       "📌 현재가가 60일 전 가격보다 높음. 중장기 상승 흐름 유지 중.",
+  "60일선 눌림":            "📌 60일 이평선 아래로 눌렸다가 회복 시도. 눌림 매수 포착 구간.",
+  "캔들·후행스팬·60일선 삼중저격": "📌 세 가지 조건이 동시에 충족. 강한 지지 확인 신호.",
+  "전환선 200점":           "📌 단기 추세가 매우 강하게 상승 중. 오늘과 9일전 동시 상승 확인.",
+  "전환선 100점":           "📌 단기 추세 상승 모멘텀 발생. 오늘 전환선 상승.",
+  "기준선 200점":           "📌 중기 추세가 매우 강하게 상승 중. 오늘과 26일전 동시 상승 확인.",
+  "기준선 100점":           "📌 중기 추세 상승 모멘텀 발생. 오늘 기준선 상승.",
+  "전기선 골든크로스 (GC)": "📌 전환선이 기준선을 위로 돌파. 단기+중기 이중 상승 전환 신호.",
+  "구름 양운 전환":         "📌 구름이 음운→양운으로 바뀜. 중장기 상승 추세 전환.",
+  "캔들 구름 위 (양운)":    "📌 양운 위에 캔들이 있음. 매우 강한 상승 포지션.",
+  "MACD 0선 상승 돌파":     "📌 MACD가 0선을 상향 돌파. 매수 모멘텀 시작 신호.",
+  "MACD 골든크로스":        "📌 MACD가 시그널선 위로 교차. 단기 매수 신호.",
+  "MACD 전고점 돌파":       "📌 MACD 히스토그램이 최근 최고치 경신. 강한 매수 모멘텀.",
+  "DMI 매수세 상승":        "📌 매수 세력(+DI)이 강해지는 중. 상승 압력 증가.",
+  "DMI 매도세 상승 (역발상)": "📌 매도 극대화 구간 — 역발상 매수 포착 타이밍.",
+  "ADX 침체 이탈 (새 추세 시작)": "📌 횡보하던 주식이 새로운 추세를 시작하는 순간.",
+  "ADX 전고점 돌파":        "📌 추세 강도가 최근 최고치를 경신. 강한 방향성 확인.",
+  "볼륨 오실레이터 0선 상승 돌파": "📌 단기 거래량이 중기보다 많아짐. 관심·수급 집중 신호.",
+  "볼륨 오실레이터 최저점 상승": "📌 거래량 오실레이터 바닥에서 반등. 거래 활성화 시작.",
+  "후행스팬+60이평선 터치":  "📌 후행스팬이 60일선에 닿음 + 상승 조건. 3중 지지 확인.",
+  "기준선 하락+BII 상승 (큰손 매집)": "📌 기관이 하락 중에 저점 매집 중. 큰손 진입 신호.",
+  "정배열 저가매수":         "📌 정배열 상태에서 단기 눌림 — 상승 추세에서 저점 매수 기회.",
+  "5일과 10일 이평선 정배열": "📌 단기 이평선 정배열 상태. 단기 상승 흐름 유지.",
+  "10일·60일 골든크로스":   "📌 10일선이 60일선 위로 교차. 중기 매수 신호.",
+  "BWI 수축 후 확장 (대형 추세 임박)": "📌 에너지 압축 후 폭발 직전. 큰 방향성 움직임 임박.",
+  "이격도+투자심리도 과매도": "📌 두 가지 과매도 지표 동시 발생. 강한 반등 예상 구간.",
+};
+
+
 function renderSignals(data){
   var area=document.getElementById("signals-area");
   var sigs=data.signals||[];var date=data.date||"";
@@ -743,28 +806,30 @@ function showSignal(key){
   html+='</div>';
 
   // ── 자동매매 시그널 ──
-  html+='<div class="modal-section">⚡ 자동매매 시그널</div>';
-  html+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;">';
+  html+='<div class="modal-section">⚡ 자동매매 진입신호</div>';
   if(autoSigs.length){
-    autoSigs.forEach(function(sg){html+='<span class="sig-auto-tag">'+(sg.name||sg)+'</span>';});
-  }else{html+='<span style="color:var(--muted);font-size:13px;">없음</span>';}
-  html+='</div>';
+    autoSigs.forEach(function(sg){
+      var nm=sg.name||sg;
+      var desc=SIG_DESC[nm]||'';
+      html+='<div style="background:rgba(227,179,65,0.07);border:1px solid rgba(227,179,65,0.5);border-radius:10px;padding:12px;margin-bottom:8px;">';
+      html+='<div style="color:var(--gold);font-size:15px;font-weight:800;margin-bottom:'+(desc?'6px':'0')+';">⚡ '+nm+'</div>';
+      if(desc)html+='<div style="color:var(--text);font-size:13px;line-height:1.7;">'+desc+'</div>';
+      html+='</div>';
+    });
+  }else{html+='<div style="color:var(--muted);font-size:13px;margin-bottom:12px;">없음</div>';}
 
   // ── 녹색 시그널 ──
-  html+='<div class="modal-section">🟢 녹색 시그널</div>';
-  html+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;">';
+  html+='<div class="modal-section">🟢 긍정 신호</div>';
   if(greenSigs.length){
-    greenSigs.forEach(function(sg){html+='<span class="sig-green-tag">'+(sg.name||sg)+'</span>';});
-  }else{html+='<span style="color:var(--muted);font-size:13px;">없음</span>';}
-  html+='</div>';
-
-  // ── 적색 시그널 ──
-  html+='<div class="modal-section">🔴 적색 시그널</div>';
-  html+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px;">';
-  if(redSigs.length){
-    redSigs.forEach(function(sg){html+='<span class="sig-red-tag">'+(sg.name||sg)+'</span>';});
-  }else{html+='<span style="color:var(--muted);font-size:13px;">없음</span>';}
-  html+='</div>';
+    greenSigs.forEach(function(sg){
+      var nm=sg.name||sg;
+      var desc=SIG_DESC[nm]||'';
+      html+='<div style="background:rgba(63,185,80,0.07);border:1px solid rgba(63,185,80,0.4);border-radius:10px;padding:12px;margin-bottom:8px;">';
+      html+='<div style="color:var(--green);font-size:15px;font-weight:800;margin-bottom:'+(desc?'6px':'0')+';">✅ '+nm+'</div>';
+      if(desc)html+='<div style="color:var(--text);font-size:13px;line-height:1.7;">'+desc+'</div>';
+      html+='</div>';
+    });
+  }else{html+='<div style="color:var(--muted);font-size:13px;margin-bottom:12px;">없음</div>';}
 
   // ── 상세 지표 (CCW/MACD) ──
   var CCW=s.ccw||""; var histUp=s.hist_up;
