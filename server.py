@@ -610,33 +610,45 @@ def virtual_query():
 
 @app.route("/api/name", methods=["GET"])
 def get_stock_name():
-    """종목코드 → 종목명 조회 (signals → holdings 순으로 탐색)"""
+    """종목코드 → 종목명 조회 (signals → holdings → virtual → pnl 순 탐색)"""
     code = request.args.get("code", "").strip().zfill(6)
     if not code or code == "000000":
         return jsonify({"code": code, "name": ""})
     name = ""
-    # 1. signals에서 탐색
+    # 1. signals
     try:
-        sigs = _load(F_SIGNALS, default={})
-        for s in sigs.get("signals", []):
+        for s in _load(F_SIGNALS, default={}).get("signals", []):
             if s.get("code") == code:
-                name = s.get("name", "")
-                break
-    except Exception:
-        pass
-    # 2. holdings에서 탐색
+                name = s.get("name", ""); break
+    except Exception: pass
+    # 2. holdings
     if not name:
         try:
-            holdings = _load(F_HOLDINGS, default={})
-            for h in holdings.get("holdings", []):
+            for h in _load(F_HOLDINGS, default={}).get("holdings", []):
                 if h.get("code") == code:
-                    name = h.get("name", "")
-                    break
-        except Exception:
-            pass
+                    name = h.get("name", ""); break
+        except Exception: pass
+    # 3. virtual_portfolio
+    if not name:
+        try:
+            for entries in _load(F_VIRTUAL, default={}).values():
+                if isinstance(entries, list):
+                    for e in entries:
+                        if e.get("code") == code:
+                            name = e.get("name", ""); break
+                if name: break
+        except Exception: pass
+    # 4. pnl_ledger
+    if not name:
+        try:
+            for e in _load(F_PNL, default={}).get("entries", []):
+                if e.get("code") == code:
+                    name = e.get("name", ""); break
+        except Exception: pass
     return jsonify({"code": code, "name": name})
 
 
+@app.route("/health")
 def health():
     users = _load(F_USERS, default={})
     return jsonify({
