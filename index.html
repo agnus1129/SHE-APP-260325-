@@ -172,7 +172,7 @@ body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','M
         oninput="autoFillName(this.value,'lookup-name')"
         onkeydown="if(event.key==='Enter')requestLookup()"
         style="flex:1;">
-      <input type="text" id="lookup-name" placeholder="종목명" style="max-width:110px;">
+      <input type="text" id="lookup-name" placeholder="종목명" style="display:none;">
       <button class="btn-search" onclick="requestLookup()">분석</button>
     </div>
     <div id="lookup-result-area"><div class="empty-msg">종목코드를 입력하고 분석 버튼을 누르세요.</div></div>
