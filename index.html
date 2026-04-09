@@ -213,14 +213,15 @@ var AUTH = {token:"",phone:"",holder:""};
 var urlToken = new URLSearchParams(location.search).get("token") || "";
 var lookupTimer = null;
 
-function autoFillName(code){
+function autoFillName(code, nameFieldId){
+  nameFieldId = nameFieldId || "lookup-name";
   if(code.length !== 6) return;
+  var nameEl = document.getElementById(nameFieldId);
+  if(!nameEl || nameEl.value.trim()) return;
   fetch(BASE+"/api/name?code="+encodeURIComponent(code))
     .then(function(r){return r.json();})
     .then(function(d){
-      if(d.name){
-        document.getElementById("lookup-name").value = d.name;
-      }
+      if(d.name) nameEl.value = d.name;
     }).catch(function(){});
 }
 
