@@ -137,17 +137,12 @@ def _get_user(token):
     users = _load(F_USERS, default={})
     return users.get(token)
 
-def _verify_user(token, phone):
-    """토큰 + 전화번호 검증"""
+def _verify_user(token, phone=None):
+    """토큰만으로 검증 (전화번호 불필요)"""
     user = _get_user(token)
     if not user:
         return None
-    # 전화번호 마지막 4자리 또는 전체 매칭
-    stored = user.get("phone","").replace("-","")
-    given  = phone.replace("-","")
-    if stored == given or stored.endswith(given):
-        return user
-    return None
+    return user
 
 
 # ════════════════════════════════════════════════════════

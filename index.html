@@ -144,10 +144,8 @@ body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','M
   <div class="login-sub">보유자 전용 · 실시간 투자정보</div>
   <div style="font-size:16px;color:var(--muted);text-align:center;opacity:0.45;margin-bottom:20px;">만든이 박상규</div>
   <div class="login-card">
-    <label>전화번호</label>
-    <input type="tel" id="input-phone" placeholder="등록된 전화번호를 입력하세요" maxlength="11">
     <button class="btn-primary" onclick="doLogin()">입장하기</button>
-    <div class="login-err" id="login-err">전화번호를 확인해 주세요.</div>
+    <div class="login-err" id="login-err">링크를 확인해 주세요.</div>
   </div>
 </div>
 
@@ -248,19 +246,17 @@ if (urlToken) {
 
 // 로그인
 function doLogin(){
-  var phone=document.getElementById("input-phone").value.replace(/-/g,"").trim();
-  if(!phone||phone.length<10){showLoginErr("전화번호를 올바르게 입력해 주세요.");return;}
   if(!urlToken){showLoginErr("올바른 링크로 접속해 주세요.");return;}
   document.querySelector(".btn-primary").textContent="확인 중...";
   fetch(BASE+"/api/auth/verify",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({token:urlToken,phone:phone})
+    body:JSON.stringify({token:urlToken,phone:""})
   }).then(function(res){
     document.querySelector(".btn-primary").textContent="입장하기";
-    if(!res.ok){showLoginErr("전화번호가 일치하지 않습니다.");return;}
+    if(!res.ok){showLoginErr("링크를 확인해 주세요.");return;}
     return res.json().then(function(d){
-      AUTH={token:urlToken,phone:phone,holder:d.holder};
+      AUTH={token:urlToken,phone:"",holder:d.holder};
       document.getElementById("header-user").textContent=d.holder+" 님";
       document.getElementById("login-screen").style.display="none";
       document.getElementById("app").style.display="flex";
@@ -283,7 +279,7 @@ function doLogout(){
   AUTH={token:"",phone:"",holder:""};
   document.getElementById("login-screen").style.display="flex";
   document.getElementById("app").style.display="none";
-  document.getElementById("input-phone").value="";
+  
 }
 
 function showLoginErr(msg){
@@ -1000,7 +996,7 @@ function renderVirtual(data, dateVal, codeVal){
 }
 
 // 자동 새로고침 3분
-setInterval(function(){if(AUTH.token&&AUTH.phone){loadHoldings();loadSignals();}},180000);
+setInterval(function(){if(AUTH.token){loadHoldings();loadSignals();}},180000);
 
 // ════════════════════════════════════════
 // ■ 손익장부 (관리자 전용)
