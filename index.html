@@ -42,10 +42,10 @@ body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','M
 .tab-content{display:none;padding:16px;flex:1;}
 .tab-content.active{display:block;}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:14px;}
-.lookup-form{display:flex;gap:8px;margin-bottom:16px;}
-.lookup-form input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:22px;padding:11px 13px;outline:none;}
+.lookup-form{display:flex;gap:6px;margin-bottom:16px;flex-wrap:nowrap;align-items:center;}
+.lookup-form input{background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:22px;padding:11px 10px;outline:none;}
 .lookup-form input:focus{border-color:var(--accent);}
-.btn-search{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:0 18px;font-size:21px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.btn-search{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:0 14px;font-size:21px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;}
 .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
 .summary-cell{background:var(--card);border-radius:10px;padding:12px;text-align:center;}
 .summary-cell .s-label{font-size:16px;color:var(--muted);margin-bottom:4px;}
@@ -168,10 +168,10 @@ body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','M
   </div>
   <div id="tab-lookup" class="tab-content active">
     <div class="lookup-form">
-      <input type="text" id="lookup-code" placeholder="종목코드 (예: 005930)" maxlength="6"
+      <input type="text" id="lookup-code" placeholder="종목코드" maxlength="6"
         oninput="autoFillName(this.value,'lookup-name')"
         onkeydown="if(event.key==='Enter')requestLookup()"
-        style="flex:1;">
+        style="width:110px;min-width:90px;">
       <input type="text" id="lookup-name" placeholder="종목명" style="display:none;">
       <button class="btn-search" onclick="requestLookup()">분석</button>
     </div>
@@ -338,7 +338,7 @@ function renderLookup(code,name,r){
   var cur=r.cur_price||0;
   var gap60=r.gap_60d||0;
   var total=r.total_score||0;
-  var totalMax=r.total_max||15;
+  var totalMax=r.total_max||39;
   var clr=function(v){return v>0?"pos-text":v<0?"neg-text":"neu-text";};
   var scClr=function(n,max){return n>=max*0.7?"pos-text":n>=max*0.4?"neu-text":"neg-text";};
 
