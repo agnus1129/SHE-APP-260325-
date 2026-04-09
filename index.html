@@ -17,104 +17,104 @@
   --gold:#e3b341; --text:#f2ecf8; --muted:#9080a8; --radius:14px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;min-height:100vh;max-width:480px;margin:0 auto;font-size:17px;line-height:1.8;}
+body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;min-height:100vh;max-width:480px;margin:0 auto;font-size:26px;line-height:1.8;}
 #login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px 24px;background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(255,61,143,0.13) 0%,transparent 70%),var(--bg);position:relative;overflow:hidden;}
 #login-screen::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,61,143,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,61,143,0.07) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;}
 .login-graphic{position:relative;width:200px;height:120px;margin-bottom:28px;flex-shrink:0;}
-.login-title{font-size:32px;font-weight:900;letter-spacing:-0.5px;background:linear-gradient(135deg,#ff3d8f 0%,#ff9ec8 60%,#c084fc 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;text-align:center;}
-.login-subtitle{font-size:15px;font-weight:600;color:var(--muted);margin-bottom:4px;text-align:center;letter-spacing:2px;}
-.login-holder{font-size:18px;font-weight:800;color:var(--accent2);margin-bottom:4px;text-align:center;}
-.login-sub{color:var(--muted);font-size:12px;margin-bottom:36px;text-align:center;opacity:0.6;}
+.login-title{font-size:48px;font-weight:900;letter-spacing:-0.5px;background:linear-gradient(135deg,#ff3d8f 0%,#ff9ec8 60%,#c084fc 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;text-align:center;}
+.login-subtitle{font-size:22px;font-weight:600;color:var(--muted);margin-bottom:4px;text-align:center;letter-spacing:2px;}
+.login-holder{font-size:27px;font-weight:800;color:var(--accent2);margin-bottom:4px;text-align:center;}
+.login-sub{color:var(--muted);font-size:18px;margin-bottom:36px;text-align:center;opacity:0.6;}
 .login-card{width:100%;background:rgba(14,14,26,0.9);border:1px solid rgba(255,61,143,0.25);border-radius:var(--radius);padding:24px;backdrop-filter:blur(12px);}
-.login-card label{display:block;font-size:11px;color:var(--accent2);margin-bottom:6px;letter-spacing:1.5px;text-transform:uppercase;}
-.login-card input{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,61,143,0.2);border-radius:8px;color:var(--text);font-size:16px;padding:13px 16px;margin-bottom:16px;outline:none;transition:border-color 0.2s;}
+.login-card label{display:block;font-size:16px;color:var(--accent2);margin-bottom:6px;letter-spacing:1.5px;text-transform:uppercase;}
+.login-card input{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,61,143,0.2);border-radius:8px;color:var(--text);font-size:24px;padding:13px 16px;margin-bottom:16px;outline:none;transition:border-color 0.2s;}
 .login-card input:focus{border-color:var(--accent);}
-.btn-primary{width:100%;padding:15px;background:linear-gradient(135deg,#ff3d8f,#c026d3);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 4px 20px rgba(255,61,143,0.35);}
-.login-err{color:var(--red);font-size:13px;text-align:center;margin-top:12px;display:none;}
+.btn-primary{width:100%;padding:15px;background:linear-gradient(135deg,#ff3d8f,#c026d3);color:#fff;border:none;border-radius:10px;font-size:24px;font-weight:800;cursor:pointer;box-shadow:0 4px 20px rgba(255,61,143,0.35);}
+.login-err{color:var(--red);font-size:20px;text-align:center;margin-top:12px;display:none;}
 #app{display:none;flex-direction:column;min-height:100vh;}
 .app-header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.app-header-title{font-size:18px;font-weight:800;background:linear-gradient(135deg,#ff3d8f,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.app-header-user{font-size:13px;color:var(--muted);}
-.btn-logout{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer;}
+.app-header-title{font-size:27px;font-weight:800;background:linear-gradient(135deg,#ff3d8f,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.app-header-user{font-size:20px;color:var(--muted);}
+.btn-logout{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:4px 10px;font-size:18px;cursor:pointer;}
 .tab-bar{background:var(--surface);border-bottom:1px solid var(--border);display:flex;}
-.tab-btn{flex:1;padding:12px 4px;background:none;border:none;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;}
+.tab-btn{flex:1;padding:12px 4px;background:none;border:none;color:var(--muted);font-size:20px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;}
 .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
 .tab-content{display:none;padding:16px;flex:1;}
 .tab-content.active{display:block;}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:14px;}
 .lookup-form{display:flex;gap:8px;margin-bottom:16px;}
-.lookup-form input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:15px;padding:11px 13px;outline:none;}
+.lookup-form input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:22px;padding:11px 13px;outline:none;}
 .lookup-form input:focus{border-color:var(--accent);}
-.btn-search{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:0 18px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.btn-search{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:0 18px;font-size:21px;font-weight:700;cursor:pointer;white-space:nowrap;}
 .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
 .summary-cell{background:var(--card);border-radius:10px;padding:12px;text-align:center;}
-.summary-cell .s-label{font-size:11px;color:var(--muted);margin-bottom:4px;}
-.summary-cell .s-val{font-size:16px;font-weight:800;}
+.summary-cell .s-label{font-size:16px;color:var(--muted);margin-bottom:4px;}
+.summary-cell .s-val{font-size:24px;font-weight:800;}
 .holding-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;cursor:pointer;transition:border-color 0.2s;}
 .holding-item:hover{border-color:var(--accent);}
 .holding-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
-.holding-name{font-size:17px;font-weight:800;}
-.holding-code{font-size:11px;color:var(--muted);margin-top:2px;}
-.holding-pct{font-size:21px;font-weight:900;}
+.holding-name{font-size:26px;font-weight:800;}
+.holding-code{font-size:16px;color:var(--muted);margin-top:2px;}
+.holding-pct{font-size:32px;font-weight:900;}
 .holding-details{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
-.hd-label{font-size:10px;color:var(--muted);}
-.hd-val{font-size:15px;font-weight:700;}
-.signal-date{font-size:12px;color:var(--muted);margin-bottom:12px;}
+.hd-label{font-size:15px;color:var(--muted);}
+.hd-val{font-size:22px;font-weight:700;}
+.signal-date{font-size:18px;color:var(--muted);margin-bottom:12px;}
 /* ── 추천종목 카드 (개선) ── */
 .signal-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;cursor:pointer;transition:border-color 0.2s;}
 .signal-item:hover{border-color:var(--gold);}
-.sig-rank{font-size:11px;font-weight:900;color:var(--gold);background:rgba(227,179,65,0.12);border:1px solid rgba(227,179,65,0.3);border-radius:20px;padding:1px 8px;display:inline-block;margin-bottom:6px;}
+.sig-rank{font-size:16px;font-weight:900;color:var(--gold);background:rgba(227,179,65,0.12);border:1px solid rgba(227,179,65,0.3);border-radius:20px;padding:1px 8px;display:inline-block;margin-bottom:6px;}
 .sig-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
 .sig-name-block{flex:1;}
-.sig-name{font-size:17px;font-weight:800;}
-.sig-code{font-size:11px;color:var(--muted);margin-top:1px;}
+.sig-name{font-size:26px;font-weight:800;}
+.sig-code{font-size:16px;color:var(--muted);margin-top:1px;}
 .sig-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
-.signal-grade{font-size:12px;font-weight:800;padding:2px 8px;border-radius:20px;border:1px solid;}
+.signal-grade{font-size:18px;font-weight:800;padding:2px 8px;border-radius:20px;border:1px solid;}
 .grade-A{color:var(--gold);border-color:var(--gold);background:rgba(227,179,65,0.1);}
 .grade-B{color:var(--accent);border-color:var(--accent);background:rgba(255,61,143,0.1);}
 .grade-C{color:var(--muted);border-color:var(--border);}
-.sig-calmar{font-size:26px;font-weight:900;color:var(--gold);line-height:1;}
-.sig-calmar-label{font-size:9px;color:var(--muted);}
+.sig-calmar{font-size:39px;font-weight:900;color:var(--gold);line-height:1;}
+.sig-calmar-label{font-size:14px;color:var(--muted);}
 .sig-meta{display:flex;gap:6px;margin:8px 0 6px;}
 .sig-trend-box{flex:1;background:var(--card);border-radius:8px;padding:6px 4px;text-align:center;}
-.sig-trend-label{font-size:9px;color:var(--muted);}
-.sig-trend-val{font-size:13px;font-weight:800;}
-.sig-cur-price{font-size:13px;color:var(--text);font-weight:700;margin-bottom:6px;}
+.sig-trend-label{font-size:14px;color:var(--muted);}
+.sig-trend-val{font-size:20px;font-weight:800;}
+.sig-cur-price{font-size:20px;color:var(--text);font-weight:700;margin-bottom:6px;}
 .sig-fired{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
-.sig-tag{font-size:10px;background:rgba(255,61,143,0.1);color:var(--accent2);border:1px solid rgba(255,61,143,0.2);border-radius:4px;padding:2px 6px;}
+.sig-tag{font-size:15px;background:rgba(255,61,143,0.1);color:var(--accent2);border:1px solid rgba(255,61,143,0.2);border-radius:4px;padding:2px 6px;}
 /* 모달 내 섹션 */
-.modal-section{font-size:18px;color:var(--accent2);font-weight:800;margin:16px 0 10px;}
-.sig-summary-box{background:rgba(227,179,65,0.06);border:1px solid rgba(227,179,65,0.2);border-radius:10px;padding:12px;margin-bottom:4px;font-size:14px;line-height:1.8;color:var(--text);}
-.sig-green-tag{font-size:12px;background:rgba(63,185,80,0.12);color:var(--green);border:1px solid rgba(63,185,80,0.3);border-radius:4px;padding:3px 8px;display:inline-block;margin:3px 2px;}
-.sig-red-tag{font-size:12px;background:rgba(248,81,73,0.12);color:var(--red);border:1px solid rgba(248,81,73,0.3);border-radius:4px;padding:3px 8px;display:inline-block;margin:3px 2px;}
-.sig-auto-tag{font-size:12px;background:rgba(255,61,143,0.12);color:var(--accent);border:1px solid rgba(255,61,143,0.3);border-radius:4px;padding:3px 8px;display:inline-block;margin:3px 2px;}
+.modal-section{font-size:27px;color:var(--accent2);font-weight:800;margin:16px 0 10px;}
+.sig-summary-box{background:rgba(227,179,65,0.06);border:1px solid rgba(227,179,65,0.2);border-radius:10px;padding:12px;margin-bottom:4px;font-size:21px;line-height:1.8;color:var(--text);}
+.sig-green-tag{font-size:18px;background:rgba(63,185,80,0.12);color:var(--green);border:1px solid rgba(63,185,80,0.3);border-radius:4px;padding:3px 8px;display:inline-block;margin:3px 2px;}
+.sig-red-tag{font-size:18px;background:rgba(248,81,73,0.12);color:var(--red);border:1px solid rgba(248,81,73,0.3);border-radius:4px;padding:3px 8px;display:inline-block;margin:3px 2px;}
+.sig-auto-tag{font-size:18px;background:rgba(255,61,143,0.12);color:var(--accent);border:1px solid rgba(255,61,143,0.3);border-radius:4px;padding:3px 8px;display:inline-block;margin:3px 2px;}
 .analysis-row{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border);}
 .analysis-row:last-child{border-bottom:none;}
-.analysis-label{color:var(--muted);font-size:14px;}
-.analysis-val{font-weight:700;font-size:15px;}
-.ind-row{display:flex;align-items:center;gap:8px;padding:10px 0;font-size:15px;border-bottom:1px solid var(--border);line-height:1.7;}
+.analysis-label{color:var(--muted);font-size:21px;}
+.analysis-val{font-weight:700;font-size:22px;}
+.ind-row{display:flex;align-items:center;gap:8px;padding:10px 0;font-size:22px;border-bottom:1px solid var(--border);line-height:1.7;}
 .ind-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .dot-green{background:var(--green);} .dot-red{background:var(--red);}
 .ind-name{flex:1;color:var(--muted);}
-.ind-val{font-weight:600;font-size:12px;}
+.ind-val{font-weight:600;font-size:18px;}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:flex-end;justify-content:center;}
 .modal-overlay.open{display:flex;}
 .modal-sheet{background:var(--surface);border-radius:16px 16px 0 0;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;padding:20px;animation:slideUp 0.25s ease;}
 @keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
 .modal-handle{width:40px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 16px;}
-.modal-close{float:right;background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;}
-.refresh-btn{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer;margin-bottom:14px;}
+.modal-close{float:right;background:none;border:none;color:var(--muted);font-size:27px;cursor:pointer;}
+.refresh-btn{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:8px 14px;font-size:20px;cursor:pointer;margin-bottom:14px;}
 .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:8px;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.pending-msg,.empty-msg{text-align:center;color:var(--muted);padding:40px 16px;font-size:14px;}
+.pending-msg,.empty-msg{text-align:center;color:var(--muted);padding:40px 16px;font-size:21px;}
 .pos-text{color:var(--red);} .neg-text{color:var(--accent);} .neu-text{color:var(--muted);}
-.btn-analyze{width:100%;padding:14px;margin-top:20px;background:linear-gradient(135deg,#ff3d8f,#c026d3);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(255,61,143,0.35);}
+.btn-analyze{width:100%;padding:14px;margin-top:20px;background:linear-gradient(135deg,#ff3d8f,#c026d3);color:#fff;border:none;border-radius:10px;font-size:22px;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(255,61,143,0.35);}
 /* ── 손익장부 ── */
-.pnl-table{width:100%;border-collapse:collapse;font-size:12px;}
-.pnl-table th{padding:7px 5px;text-align:right;font-size:10px;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;font-weight:600;}
+.pnl-table{width:100%;border-collapse:collapse;font-size:18px;}
+.pnl-table th{padding:7px 5px;text-align:right;font-size:15px;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;font-weight:600;}
 .pnl-table th:first-child{text-align:left;}
-.pnl-table td{padding:6px 5px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;font-size:12px;}
-.pnl-table td:first-child{text-align:left;font-weight:700;font-size:12px;}
+.pnl-table td{padding:6px 5px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;font-size:18px;}
+.pnl-table td:first-child{text-align:left;font-weight:700;font-size:18px;}
 .pnl-table tr:hover{background:rgba(255,61,143,0.04);}
 </style>
 </head>
@@ -142,7 +142,7 @@ body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','M
   <div class="login-subtitle">주식투자 정보서비스</div>
   <div id="login-holder" class="login-holder" style="display:none;"></div>
   <div class="login-sub">보유자 전용 · 실시간 투자정보</div>
-  <div style="font-size:11px;color:var(--muted);text-align:center;opacity:0.45;margin-bottom:20px;">만든이 박상규</div>
+  <div style="font-size:16px;color:var(--muted);text-align:center;opacity:0.45;margin-bottom:20px;">만든이 박상규</div>
   <div class="login-card">
     <label>전화번호</label>
     <input type="tel" id="input-phone" placeholder="등록된 전화번호를 입력하세요" maxlength="11">
@@ -192,12 +192,12 @@ body{background:var(--bg);color:var(--text);font-family:'Apple SD Gothic Neo','M
   <div id="tab-virtual" class="tab-content">
     <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
       <input type="text" id="virt-date" placeholder="날짜 YYYYMMDD" maxlength="8"
-             style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;padding:10px 12px;outline:none;">
+             style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:21px;padding:10px 12px;outline:none;">
       <input type="text" id="virt-code" placeholder="종목코드" maxlength="6"
              oninput="autoFillName(this.value,'virt-name')"
-             style="width:100px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;padding:10px 12px;outline:none;">
+             style="width:100px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:21px;padding:10px 12px;outline:none;">
       <input type="text" id="virt-name" placeholder="종목명" readonly
-             style="width:100px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--gold);font-size:14px;padding:10px 12px;outline:none;">
+             style="width:100px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--gold);font-size:21px;padding:10px 12px;outline:none;">
       <button class="btn-search" onclick="loadVirtual()">조회</button>
     </div>
     <div id="virtual-area"><div class="empty-msg">날짜 또는 종목코드로 조회하세요.</div></div>
@@ -345,35 +345,35 @@ function renderLookup(code,name,r){
   // ── 헤더: 종목명 + 현재가 + 60일종이격 ──
   var h='<div class="card">';
   h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;">';
-  h+='<div><div style="font-size:20px;font-weight:800;">'+name+'</div>';
-  h+='<div style="font-size:12px;color:var(--muted);">종목코드: '+code+'</div></div>';
+  h+='<div><div style="font-size:30px;font-weight:800;">'+name+'</div>';
+  h+='<div style="font-size:18px;color:var(--muted);">종목코드: '+code+'</div></div>';
   h+='<div style="text-align:right;">';
-  h+='<div style="font-size:24px;font-weight:900;">'+cur.toLocaleString()+'원</div>';
-  h+='<div class="'+clr(gap60)+'" style="font-size:14px;font-weight:700;">';
+  h+='<div style="font-size:36px;font-weight:900;">'+cur.toLocaleString()+'원</div>';
+  h+='<div class="'+clr(gap60)+'" style="font-size:21px;font-weight:700;">';
   h+='60일 이동평균 대비 '+(gap60>=0?"위":"아래")+' '+(Math.abs(gap60)).toFixed(2)+'%</div>';
   h+='</div></div>';
   h+='<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;">';
-  h+='<span style="font-size:13px;color:var(--muted);">전체 추세 종합점수</span>';
-  h+='<span class="'+scClr(total,totalMax)+'" style="font-size:22px;font-weight:900;">'+total+' / '+totalMax+'점</span>';
+  h+='<span style="font-size:20px;color:var(--muted);">전체 추세 종합점수</span>';
+  h+='<span class="'+scClr(total,totalMax)+'" style="font-size:33px;font-weight:900;">'+total+' / '+totalMax+'점</span>';
   h+='</div></div>';
 
   // ── 봉별 추세 (월봉/주봉/일봉) — 요약 + 버튼 클릭 시 세부 ──
   var TF_LABELS=["📅 월봉 (장기)","📆 주봉 (중기)","📊 일봉 (단기)"];
   var tfs=[r.trend_month,r.trend_week,r.trend_day];
 
-  h+='<div style="font-size:14px;font-weight:800;color:var(--accent2);margin-bottom:10px;">📈 추세 분석 (13점 만점)</div>';
+  h+='<div style="font-size:21px;font-weight:800;color:var(--accent2);margin-bottom:10px;">📈 추세 분석 (13점 만점)</div>';
   h+='<div style="display:flex;gap:8px;margin-bottom:4px;">';
   tfs.forEach(function(tf,idx){
-    if(!tf){h+='<div style="flex:1;background:var(--card);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:12px;color:var(--muted);">'+TF_LABELS[idx]+'</div><div style="color:var(--muted);font-size:18px;">—</div></div>';return;}
+    if(!tf){h+='<div style="flex:1;background:var(--card);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:18px;color:var(--muted);">'+TF_LABELS[idx]+'</div><div style="color:var(--muted);font-size:27px;">—</div></div>';return;}
     var sc=tf.score_num||0; var mx=tf.score_max||13;
     var pct=Math.round(sc/mx*100);
     var clr=pct>=70?"var(--green)":pct>=40?"var(--gold)":"var(--red)";
     h+='<div onclick="toggleLookupTrend('+idx+')" style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px;cursor:pointer;text-align:center;transition:border-color 0.2s;" onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\'">';
-    h+='<div style="font-size:12px;color:var(--muted);margin-bottom:4px;">'+TF_LABELS[idx]+'</div>';
-    h+='<div style="font-size:22px;font-weight:900;color:'+clr+';">'+sc+'<span style="font-size:13px;color:var(--muted);">/'+mx+'</span></div>';
+    h+='<div style="font-size:18px;color:var(--muted);margin-bottom:4px;">'+TF_LABELS[idx]+'</div>';
+    h+='<div style="font-size:33px;font-weight:900;color:'+clr+';">'+sc+'<span style="font-size:20px;color:var(--muted);">/'+mx+'</span></div>';
     h+='<div style="background:var(--border);border-radius:4px;height:5px;margin-top:6px;">';
     h+='<div style="background:'+clr+';width:'+pct+'%;height:5px;border-radius:4px;"></div></div>';
-    h+='<div style="font-size:11px;color:var(--accent);margin-top:5px;">▼ 상세보기</div>';
+    h+='<div style="font-size:16px;color:var(--accent);margin-top:5px;">▼ 상세보기</div>';
     h+='</div>';
   });
   h+='</div>';
@@ -383,16 +383,16 @@ function renderLookup(code,name,r){
     if(!tf||!tf.indicators||!tf.indicators.length){h+='<div id="lt-'+idx+'" style="display:none;"></div>';return;}
     h+='<div id="lt-'+idx+'" style="display:none;background:var(--card);border:1px solid var(--accent);border-radius:10px;padding:14px;margin-bottom:8px;">';
     var mx2=tf.score_max||13;
-    h+='<div style="font-size:14px;font-weight:800;margin-bottom:10px;">'+TF_LABELS[idx]+' 세부 지표 ('+tf.score_num+'/'+mx2+'점)</div>';
+    h+='<div style="font-size:21px;font-weight:800;margin-bottom:10px;">'+TF_LABELS[idx]+' 세부 지표 ('+tf.score_num+'/'+mx2+'점)</div>';
     tf.indicators.forEach(function(ind){
       var sc=ind.score||0; var mx=ind.max||1;
       var clr=sc>0?"var(--green)":"var(--red)";
       var bar=""; for(var b=0;b<mx;b++){bar+='<span style="color:'+(b<sc?"var(--green)":"var(--border)");bar+='">●</span>';}
       h+='<div style="padding:9px 0;border-bottom:1px solid var(--border);">';
       h+='<div style="display:flex;justify-content:space-between;align-items:center;">';
-      h+='<div style="font-size:14px;font-weight:700;">'+ind.name+'</div>';
-      h+='<div style="font-size:13px;font-weight:800;color:'+clr+';">'+sc+'/'+mx+' '+bar+'</div></div>';
-      if(ind.display)h+='<div style="font-size:12px;color:var(--muted);margin-top:3px;">'+ind.display+'</div>';
+      h+='<div style="font-size:21px;font-weight:700;">'+ind.name+'</div>';
+      h+='<div style="font-size:20px;font-weight:800;color:'+clr+';">'+sc+'/'+mx+' '+bar+'</div></div>';
+      if(ind.display)h+='<div style="font-size:18px;color:var(--muted);margin-top:3px;">'+ind.display+'</div>';
       h+='</div>';
     });
     h+='</div>';
@@ -411,40 +411,40 @@ function renderLookup(code,name,r){
     var desc=meta.desc||"";
     var cond=meta.cond||"";
     var r='<div style="background:'+bgClr+';border:1px solid '+borderClr+';border-radius:10px;padding:14px;margin-bottom:8px;">';
-    if(cat)r+='<div style="font-size:11px;color:'+borderClr+';font-weight:700;margin-bottom:5px;letter-spacing:1px;">'+cat.toUpperCase()+'</div>';
-    r+='<div style="color:'+titleClr+';font-size:17px;font-weight:800;margin-bottom:6px;">'+nm+'</div>';
-    if(desc)r+='<div style="color:var(--text);font-size:14px;line-height:1.75;margin-bottom:4px;">'+desc+'</div>';
-    if(cond)r+='<div style="font-size:12px;color:var(--muted);margin-top:4px;">📌 조건: '+cond+'</div>';
+    if(cat)r+='<div style="font-size:16px;color:'+borderClr+';font-weight:700;margin-bottom:5px;letter-spacing:1px;">'+cat.toUpperCase()+'</div>';
+    r+='<div style="color:'+titleClr+';font-size:26px;font-weight:800;margin-bottom:6px;">'+nm+'</div>';
+    if(desc)r+='<div style="color:var(--text);font-size:21px;line-height:1.75;margin-bottom:4px;">'+desc+'</div>';
+    if(cond)r+='<div style="font-size:18px;color:var(--muted);margin-top:4px;">📌 조건: '+cond+'</div>';
     r+='</div>';
     return r;
   }
 
   if(autoSigs.length||greenSigs.length){
     h+='<div class="card">';
-    h+='<div style="font-size:16px;font-weight:800;margin-bottom:4px;">🔬 74개 지표 분석 결과</div>';
-    h+='<div style="font-size:13px;color:var(--muted);margin-bottom:14px;">SHE 시스템이 감지한 기술적 신호입니다</div>';
+    h+='<div style="font-size:24px;font-weight:800;margin-bottom:4px;">🔬 74개 지표 분석 결과</div>';
+    h+='<div style="font-size:20px;color:var(--muted);margin-bottom:14px;">SHE 시스템이 감지한 기술적 신호입니다</div>';
     if(autoSigs.length){
       h+='<div style="margin-bottom:16px;">';
-      h+='<div style="font-size:14px;font-weight:700;color:var(--gold);margin-bottom:8px;">⚡ 자동매매 진입신호 ('+autoSigs.length+'개) — SHE 매수 후보 선정</div>';
+      h+='<div style="font-size:21px;font-weight:700;color:var(--gold);margin-bottom:8px;">⚡ 자동매매 진입신호 ('+autoSigs.length+'개) — SHE 매수 후보 선정</div>';
       autoSigs.forEach(function(s){
         var meta=IND_META[s]||{}; var nm=meta.name||s;
         var desc=SIG_DESC[nm]||meta.desc||'';
         h+='<div style="background:rgba(227,179,65,0.07);border:1px solid rgba(227,179,65,0.5);border-radius:10px;padding:12px;margin-bottom:8px;">';
-        h+='<div style="color:var(--gold);font-size:15px;font-weight:800;margin-bottom:'+(desc?'6px':'0')+';">⚡ '+nm+'</div>';
-        if(desc)h+='<div style="color:var(--text);font-size:13px;line-height:1.7;">'+desc+'</div>';
+        h+='<div style="color:var(--gold);font-size:22px;font-weight:800;margin-bottom:'+(desc?'6px':'0')+';">⚡ '+nm+'</div>';
+        if(desc)h+='<div style="color:var(--text);font-size:20px;line-height:1.7;">'+desc+'</div>';
         h+='</div>';
       });
       h+='</div>';
     }
     if(greenSigs.length){
       h+='<div style="margin-bottom:8px;">';
-      h+='<div style="font-size:14px;font-weight:700;color:var(--green);margin-bottom:8px;">✅ 긍정 신호 ('+greenSigs.length+'개) — 매수에 유리한 조건</div>';
+      h+='<div style="font-size:21px;font-weight:700;color:var(--green);margin-bottom:8px;">✅ 긍정 신호 ('+greenSigs.length+'개) — 매수에 유리한 조건</div>';
       greenSigs.forEach(function(s){
         var meta=IND_META[s]||{}; var nm=meta.name||s;
         var desc=SIG_DESC[nm]||meta.desc||'';
         h+='<div style="background:rgba(63,185,80,0.07);border:1px solid rgba(63,185,80,0.4);border-radius:10px;padding:12px;margin-bottom:8px;">';
-        h+='<div style="color:var(--green);font-size:15px;font-weight:800;margin-bottom:'+(desc?'6px':'0')+';">✅ '+nm+'</div>';
-        if(desc)h+='<div style="color:var(--text);font-size:13px;line-height:1.7;">'+desc+'</div>';
+        h+='<div style="color:var(--green);font-size:22px;font-weight:800;margin-bottom:'+(desc?'6px':'0')+';">✅ '+nm+'</div>';
+        if(desc)h+='<div style="color:var(--text);font-size:20px;line-height:1.7;">'+desc+'</div>';
         h+='</div>';
       });
       h+='</div>';
@@ -454,7 +454,7 @@ function renderLookup(code,name,r){
 
   // ── 기관순매수 안내 ──
   h+='<div class="card" style="background:var(--card);border:1px solid var(--border);">';
-  h+='<div style="font-size:11px;color:var(--muted);line-height:1.8;">';
+  h+='<div style="font-size:16px;color:var(--muted);line-height:1.8;">';
   h+='💡 <b>용어 안내</b><br>';
   h+='• <b>60일 이동평균 대비</b>: 현재 주가가 최근 60일 평균값보다 높은지(상승세) 낮은지(하락세)<br>';
   h+='• <b>이동평균 정배열</b>: 단기(5일)>중기(20일)>장기(60일) 순으로 위에 있으면 상승 흐름<br>';
@@ -470,10 +470,10 @@ function renderLookup(code,name,r){
   h+='<div style="text-align:center;margin-top:4px;margin-bottom:8px;">';
   h+='<a href="https://finance.naver.com/item/fchart.nhn?code='+code+'" target="_blank" ';
   h+='style="display:inline-flex;align-items:center;gap:8px;background:rgba(3,199,90,0.12);border:1px solid rgba(3,199,90,0.4);';
-  h+='border-radius:10px;padding:12px 24px;color:#03C75A;font-size:15px;font-weight:800;text-decoration:none;">';
+  h+='border-radius:10px;padding:12px 24px;color:#03C75A;font-size:22px;font-weight:800;text-decoration:none;">';
   h+='📈 네이버 차트 바로가기</a></div>';
 
-  var ts=r.updated_at?'<div style="font-size:10px;color:var(--muted);text-align:right;margin-top:4px;">분석: '+r.updated_at.slice(0,16).replace("T"," ")+'</div>':'';
+  var ts=r.updated_at?'<div style="font-size:15px;color:var(--muted);text-align:right;margin-top:4px;">분석: '+r.updated_at.slice(0,16).replace("T"," ")+'</div>':'';
   area.innerHTML=h+ts;
 }
 
@@ -501,8 +501,8 @@ function renderHoldings(data){
   h+='<div class="summary-cell"><div class="s-label">총 수익금</div><div class="s-val '+clr(s.total_profit)+'">'+(s.total_profit>=0?"+":"")+p(s.total_profit)+'원</div></div>';
   h+='<div class="summary-cell"><div class="s-label">총 수익률</div><div class="s-val '+clr(s.total_pct)+'">'+(s.total_pct>=0?"+":"")+(s.total_pct||0).toFixed(2)+'%</div></div>';
   h+='</div>';
-  if(data.timestamp)h+='<div style="font-size:11px;color:var(--muted);margin-bottom:12px;">기준: '+data.timestamp.slice(0,16).replace("T"," ")+'</div>';
-  h+='<div style="font-size:14px;font-weight:700;margin-bottom:12px;">보유 종목 ('+items.length+'종목)</div>';
+  if(data.timestamp)h+='<div style="font-size:16px;color:var(--muted);margin-bottom:12px;">기준: '+data.timestamp.slice(0,16).replace("T"," ")+'</div>';
+  h+='<div style="font-size:21px;font-weight:700;margin-bottom:12px;">보유 종목 ('+items.length+'종목)</div>';
   holdingData={};
   items.forEach(function(item,i){
     var key="hd"+i;
@@ -530,8 +530,8 @@ function showHolding(key){
   var clr=function(v){return v>0?"pos-text":v<0?"neg-text":"neu-text";};
   var ep=h.entry_price||0;var cp=h.cur_price||0;var qty=h.qty||0;
   var pct=ep>0?((cp-ep)/ep*100):0;var prof=(cp-ep)*qty;
-  var html='<div style="font-size:20px;font-weight:800;margin-bottom:4px;">'+h.name+'</div>';
-  html+='<div style="font-size:12px;color:var(--muted);margin-bottom:20px;">'+h.code+'</div>';
+  var html='<div style="font-size:30px;font-weight:800;margin-bottom:4px;">'+h.name+'</div>';
+  html+='<div style="font-size:18px;color:var(--muted);margin-bottom:20px;">'+h.code+'</div>';
   var rows=[
     ["매입가",p(ep)+"원"],["현재가",p(cp)+"원"],["수량",qty+"주"],
     ["매입금액",p(ep*qty)+"원"],["평가금액",p(cp*qty)+"원"],
@@ -777,14 +777,14 @@ function showSignal(key){
   // ── 헤더 ──
   html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">';
   html+='<div>';
-  html+='<div style="font-size:18px;font-weight:800;color:var(--gold);margin-bottom:5px;">'+rank+'위 진입 후보</div>';
-  html+='<div style="font-size:28px;font-weight:900;">'+(s.name||s.code)+'</div>';
-  html+='<div style="font-size:17px;color:var(--muted);">'+s.code+' | '+curPrice+'</div>';
+  html+='<div style="font-size:27px;font-weight:800;color:var(--gold);margin-bottom:5px;">'+rank+'위 진입 후보</div>';
+  html+='<div style="font-size:42px;font-weight:900;">'+(s.name||s.code)+'</div>';
+  html+='<div style="font-size:26px;color:var(--muted);">'+s.code+' | '+curPrice+'</div>';
   html+='</div>';
   html+='<div style="text-align:right;">';
   html+='<div class="signal-grade grade-'+grade+'">'+grade+'</div>';
-  html+='<div style="font-size:32px;font-weight:900;color:var(--gold);line-height:1.1;margin-top:4px;">'+calmar+'</div>';
-  html+='<div style="font-size:10px;color:var(--muted);">CALMAR</div>';
+  html+='<div style="font-size:48px;font-weight:900;color:var(--gold);line-height:1.1;margin-top:4px;">'+calmar+'</div>';
+  html+='<div style="font-size:15px;color:var(--muted);">CALMAR</div>';
   html+='</div></div>';
 
   // ── 추세 ──
@@ -792,8 +792,8 @@ function showSignal(key){
   [['월봉',scM],['주봉',scW],['일봉',scD]].forEach(function(t){
     var sc=t[1]; var clr=tClr(sc);
     html+='<div style="flex:1;background:var(--card);border-radius:8px;padding:8px;text-align:center;">';
-    html+='<div style="font-size:16px;font-weight:700;color:var(--muted);">'+t[0]+'</div>';
-    html+='<div style="font-size:26px;font-weight:900;color:'+clr+'">'+(sc?sc+'/13':'─')+'</div>';
+    html+='<div style="font-size:24px;font-weight:700;color:var(--muted);">'+t[0]+'</div>';
+    html+='<div style="font-size:39px;font-weight:900;color:'+clr+'">'+(sc?sc+'/13':'─')+'</div>';
     if(sc){html+='<div style="background:var(--border);border-radius:4px;height:3px;margin-top:4px;"><div style="background:'+clr+';width:'+Math.round(sc/13*100)+'%;height:3px;border-radius:4px;"></div></div>';}
     html+='</div>';
   });
@@ -808,7 +808,7 @@ function showSignal(key){
   html+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;">';
   if(fired.length){
     fired.forEach(function(sg){html+='<span class="sig-auto-tag">'+sg+'</span>';});
-  }else{html+='<span style="color:var(--muted);font-size:13px;">─</span>';}
+  }else{html+='<span style="color:var(--muted);font-size:20px;">─</span>';}
   html+='</div>';
 
   // ── 자동매매 시그널 ──
@@ -818,11 +818,11 @@ function showSignal(key){
       var nm=sg.name||sg;
       var desc=SIG_DESC[nm]||'';
       html+='<div style="background:rgba(227,179,65,0.07);border:1px solid rgba(227,179,65,0.5);border-radius:10px;padding:12px;margin-bottom:8px;">';
-      html+='<div style="color:var(--gold);font-size:15px;font-weight:800;margin-bottom:'+(desc?'6px':'0')+';">⚡ '+nm+'</div>';
-      if(desc)html+='<div style="color:var(--text);font-size:13px;line-height:1.7;">'+desc+'</div>';
+      html+='<div style="color:var(--gold);font-size:22px;font-weight:800;margin-bottom:'+(desc?'6px':'0')+';">⚡ '+nm+'</div>';
+      if(desc)html+='<div style="color:var(--text);font-size:20px;line-height:1.7;">'+desc+'</div>';
       html+='</div>';
     });
-  }else{html+='<div style="color:var(--muted);font-size:13px;margin-bottom:12px;">없음</div>';}
+  }else{html+='<div style="color:var(--muted);font-size:20px;margin-bottom:12px;">없음</div>';}
 
   // ── 녹색 시그널 ──
   html+='<div class="modal-section">🟢 긍정 신호</div>';
@@ -831,18 +831,18 @@ function showSignal(key){
       var nm=sg.name||sg;
       var desc=SIG_DESC[nm]||'';
       html+='<div style="background:rgba(63,185,80,0.07);border:1px solid rgba(63,185,80,0.4);border-radius:10px;padding:12px;margin-bottom:8px;">';
-      html+='<div style="color:var(--green);font-size:15px;font-weight:800;margin-bottom:'+(desc?'6px':'0')+';">✅ '+nm+'</div>';
-      if(desc)html+='<div style="color:var(--text);font-size:13px;line-height:1.7;">'+desc+'</div>';
+      html+='<div style="color:var(--green);font-size:22px;font-weight:800;margin-bottom:'+(desc?'6px':'0')+';">✅ '+nm+'</div>';
+      if(desc)html+='<div style="color:var(--text);font-size:20px;line-height:1.7;">'+desc+'</div>';
       html+='</div>';
     });
-  }else{html+='<div style="color:var(--muted);font-size:13px;margin-bottom:12px;">없음</div>';}
+  }else{html+='<div style="color:var(--muted);font-size:20px;margin-bottom:12px;">없음</div>';}
 
   // ── 상세 지표 (CCW/MACD) ──
   var CCW=s.ccw||""; var histUp=s.hist_up;
   if(CCW||histUp!==undefined){
     html+='<div class="modal-section">📌 상세 지표</div>';
-    if(CCW){html+='<div style="padding:8px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;"><span style="color:var(--muted);font-size:13px;">역시계곡선(CCW)</span><span style="font-weight:700;font-size:14px;">'+(CCW_DESC[CCW]||CCW)+'</span></div>';}
-    html+='<div style="padding:8px 0;display:flex;justify-content:space-between;"><span style="color:var(--muted);font-size:13px;">MACD 히스토그램</span><span style="font-weight:700;font-size:14px;">'+(histUp?'📈 증가 중':'📉 감소 중')+'</span></div>';
+    if(CCW){html+='<div style="padding:8px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;"><span style="color:var(--muted);font-size:20px;">역시계곡선(CCW)</span><span style="font-weight:700;font-size:21px;">'+(CCW_DESC[CCW]||CCW)+'</span></div>';}
+    html+='<div style="padding:8px 0;display:flex;justify-content:space-between;"><span style="color:var(--muted);font-size:20px;">MACD 히스토그램</span><span style="font-weight:700;font-size:21px;">'+(histUp?'📈 증가 중':'📉 감소 중')+'</span></div>';
   }
 
   document.getElementById("modal-body").innerHTML=html;
@@ -940,7 +940,7 @@ function renderVirtual(data, dateVal, codeVal){
   var p=function(n){return Math.abs(Math.round(n)).toLocaleString();};
   var cl=function(v){return v>0?"pos-text":v<0?"neg-text":"neu-text";};
   var sg=function(v){return v>=0?"+":"−";};
-  var h='<div style="font-size:12px;color:var(--muted);margin-bottom:10px;">';
+  var h='<div style="font-size:18px;color:var(--muted);margin-bottom:10px;">';
   h+=data.count+'건 — D+3~D+9 최고 수익률 순 정렬';
   if(data.updated_at)h+='  (갱신: '+data.updated_at.slice(0,16).replace("T"," ")+')';
   h+='</div>';
@@ -949,18 +949,18 @@ function renderVirtual(data, dateVal, codeVal){
     var dr=e.d_results||{};
     var isTop=idx===0;
     var border=isTop?"border:1px solid var(--gold)":"border:1px solid var(--border)";
-    var matchBadge=e._match?'<span style="font-size:10px;background:rgba(255,61,143,0.15);color:var(--accent);border-radius:4px;padding:1px 6px;margin-left:6px;">'+e._match+'</span>':"";
+    var matchBadge=e._match?'<span style="font-size:15px;background:rgba(255,61,143,0.15);color:var(--accent);border-radius:4px;padding:1px 6px;margin-left:6px;">'+e._match+'</span>':"";
     h+='<div style="background:var(--surface);'+border+';border-radius:var(--radius);padding:14px;margin-bottom:10px;">';
     // 헤더
-    if(isTop)h+='<div style="font-size:10px;color:var(--gold);font-weight:700;margin-bottom:6px;">🏆 최고 수익률</div>';
+    if(isTop)h+='<div style="font-size:15px;color:var(--gold);font-weight:700;margin-bottom:6px;">🏆 최고 수익률</div>';
     h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">';
     h+='<div>';
-    h+='<div style="font-size:16px;font-weight:800;">'+e.name+'('+e.code+')'+matchBadge+'</div>';
-    h+='<div style="font-size:11px;color:var(--muted);">칼마 '+e.calmar.toFixed(0)+' | '+e['rank']+'위 | 진입일 '+e.entry_date.slice(0,4)+'/'+e.entry_date.slice(4,6)+'/'+e.entry_date.slice(6)+'</div>';
+    h+='<div style="font-size:24px;font-weight:800;">'+e.name+'('+e.code+')'+matchBadge+'</div>';
+    h+='<div style="font-size:16px;color:var(--muted);">칼마 '+e.calmar.toFixed(0)+' | '+e['rank']+'위 | 진입일 '+e.entry_date.slice(0,4)+'/'+e.entry_date.slice(4,6)+'/'+e.entry_date.slice(6)+'</div>';
     h+='</div>';
     h+='<div style="text-align:right;">';
-    h+='<div style="font-size:13px;color:var(--muted);">진입가</div>';
-    h+='<div style="font-size:18px;font-weight:800;">'+p(e.entry_price)+'원</div>';
+    h+='<div style="font-size:20px;color:var(--muted);">진입가</div>';
+    h+='<div style="font-size:27px;font-weight:800;">'+p(e.entry_price)+'원</div>';
     h+='</div></div>';
 
     // D+3~D+9 결과 그리드
@@ -972,14 +972,14 @@ function renderVirtual(data, dateVal, codeVal){
       var bg=isBest?"rgba(227,179,65,0.15)":"var(--card)";
       var brd=isBest?"border:1px solid rgba(227,179,65,0.5)":"border:1px solid var(--border)";
       h+='<div style="background:'+bg+';'+brd+';border-radius:8px;padding:6px 2px;text-align:center;">';
-      h+='<div style="font-size:9px;color:'+(isBest?"var(--gold)":"var(--muted)")+';font-weight:700;">'+dk+(isBest?"★":"")+'</div>';
+      h+='<div style="font-size:14px;color:'+(isBest?"var(--gold)":"var(--muted)")+';font-weight:700;">'+dk+(isBest?"★":"")+'</div>';
       if(dv){
         var pct=dv.pnl_pct;
-        h+='<div style="font-size:11px;font-weight:800;color:'+(pct>=0?"var(--green)":"var(--red)")+';">'+(pct>=0?"+":"")+pct.toFixed(1)+'%</div>';
-        h+='<div style="font-size:9px;color:var(--muted);">'+p(dv.close)+'원</div>';
+        h+='<div style="font-size:16px;font-weight:800;color:'+(pct>=0?"var(--green)":"var(--red)")+';">'+(pct>=0?"+":"")+pct.toFixed(1)+'%</div>';
+        h+='<div style="font-size:14px;color:var(--muted);">'+p(dv.close)+'원</div>';
       }else{
-        h+='<div style="font-size:10px;color:var(--border);">─</div>';
-        h+='<div style="font-size:9px;color:var(--border);">─</div>';
+        h+='<div style="font-size:15px;color:var(--border);">─</div>';
+        h+='<div style="font-size:14px;color:var(--border);">─</div>';
       }
       h+='</div>';
     });
@@ -989,8 +989,8 @@ function renderVirtual(data, dateVal, codeVal){
     if(e.best_day&&e.best_pnl_pct!=null){
       var bpct=e.best_pnl_pct;
       h+='<div style="margin-top:8px;padding:6px 10px;background:rgba(227,179,65,0.06);border-radius:8px;display:flex;justify-content:space-between;">';
-      h+='<span style="font-size:11px;color:var(--muted);">'+e.best_day+' 최고</span>';
-      h+='<span style="font-size:13px;font-weight:800;color:'+(bpct>=0?"var(--green)":"var(--red)")+';">';
+      h+='<span style="font-size:16px;color:var(--muted);">'+e.best_day+' 최고</span>';
+      h+='<span style="font-size:20px;font-weight:800;color:'+(bpct>=0?"var(--green)":"var(--red)")+';">';
       h+=sg(bpct)+p(Math.abs(e.best_pnl||0))+'원  ('+(bpct>=0?"+":"")+bpct.toFixed(2)+'%)</span>';
       h+='</div>';
     }
@@ -1062,15 +1062,15 @@ function renderPnL(recs){
   var h='';
   // 요약 카드
   h+='<div class="summary-grid" style="margin-bottom:10px;">';
-  h+='<div class="summary-cell"><div class="s-label">누적 실현손익</div><div class="s-val" style="font-size:15px;color:'+cl(totalPnL)+'">'+sg(totalPnL)+p(totalPnL)+'원</div></div>';
-  h+='<div class="summary-cell"><div class="s-label">수익률</div><div class="s-val" style="font-size:15px;color:'+cl(roi)+'">'+pp(roi)+'</div></div>';
-  h+='<div class="summary-cell"><div class="s-label">현재자산 추정</div><div class="s-val" style="font-size:15px;">'+p(totalPrin+totalPnL)+'원</div></div>';
-  h+='<div class="summary-cell"><div class="s-label">투자원금</div><div class="s-val" style="font-size:15px;">'+p(totalPrin)+'원</div></div>';
+  h+='<div class="summary-cell"><div class="s-label">누적 실현손익</div><div class="s-val" style="font-size:22px;color:'+cl(totalPnL)+'">'+sg(totalPnL)+p(totalPnL)+'원</div></div>';
+  h+='<div class="summary-cell"><div class="s-label">수익률</div><div class="s-val" style="font-size:22px;color:'+cl(roi)+'">'+pp(roi)+'</div></div>';
+  h+='<div class="summary-cell"><div class="s-label">현재자산 추정</div><div class="s-val" style="font-size:22px;">'+p(totalPrin+totalPnL)+'원</div></div>';
+  h+='<div class="summary-cell"><div class="s-label">투자원금</div><div class="s-val" style="font-size:22px;">'+p(totalPrin)+'원</div></div>';
   h+='</div>';
   h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px;">';
-  h+='<div class="summary-cell"><div class="s-label">총 매입</div><div class="s-val" style="font-size:12px;">'+p(totalBuy)+'원</div></div>';
-  h+='<div class="summary-cell"><div class="s-label">총 청산</div><div class="s-val" style="font-size:12px;">'+p(totalSell)+'원</div></div>';
-  h+='<div class="summary-cell"><div class="s-label">수수료+세금</div><div class="s-val" style="font-size:12px;">'+p(totalFee)+'원</div></div>';
+  h+='<div class="summary-cell"><div class="s-label">총 매입</div><div class="s-val" style="font-size:18px;">'+p(totalBuy)+'원</div></div>';
+  h+='<div class="summary-cell"><div class="s-label">총 청산</div><div class="s-val" style="font-size:18px;">'+p(totalSell)+'원</div></div>';
+  h+='<div class="summary-cell"><div class="s-label">수수료+세금</div><div class="s-val" style="font-size:18px;">'+p(totalFee)+'원</div></div>';
   h+='</div>';
   // 테이블
   h+='<div style="overflow-x:auto;"><table class="pnl-table"><thead><tr>';
@@ -1087,14 +1087,14 @@ function renderPnL(recs){
     h+='<td>'+((r.청산||0)?p(r.청산):"—")+'</td>';
     h+='<td style="color:var(--muted)">'+((r.수수료||0)?p(r.수수료):"—")+'</td>';
     h+='<td style="color:var(--muted)">'+((r.세금||0)?p(r.세금):"—")+'</td>';
-    h+='<td style="font-weight:700;color:'+cl(r._d)+'">'+(hasPrin?'<span style="color:var(--gold);font-size:10px;">자본투입</span>':isBuy?'<span style="color:var(--muted);font-size:10px;">미실현</span>':(r._d===0?"—":sg(r._d)+p(r._d)+'원'))+'</td>';
+    h+='<td style="font-weight:700;color:'+cl(r._d)+'">'+(hasPrin?'<span style="color:var(--gold);font-size:15px;">자본투입</span>':isBuy?'<span style="color:var(--muted);font-size:15px;">미실현</span>':(r._d===0?"—":sg(r._d)+p(r._d)+'원'))+'</td>';
     h+='<td style="font-weight:800;color:'+cl(r._cum)+'">'+sg(r._cum)+p(r._cum)+'원</td>';
     h+='<td style="color:'+cl(r._roi)+'">'+pp(r._roi)+'</td>';
     h+='<td style="color:var(--muted);max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(r.메모||"—")+'</td>';
     h+='</tr>';
   });
   h+='</tbody></table></div>';
-  h+='<div style="font-size:10px;color:var(--muted);text-align:center;margin-top:10px;">계좌 6218-0331 · SHE 자동매매 · 3분마다 자동갱신</div>';
+  h+='<div style="font-size:15px;color:var(--muted);text-align:center;margin-top:10px;">계좌 6218-0331 · SHE 자동매매 · 3분마다 자동갱신</div>';
   area.innerHTML=h;
 }
 
